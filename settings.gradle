@@ -1,0 +1,3 @@
+include ':messaging'
+include ':webservices'
+include ':app', ':cmalarms', ':utilities'

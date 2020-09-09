@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AlarmPanelFragment">
+        <attr name="horizontal" format="boolean"/>
+    </declare-styleable>
+</resources>
