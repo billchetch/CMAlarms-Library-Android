@@ -1,3 +1,5 @@
+include ':appresources'
 include ':messaging'
+include ':utilities'
 include ':webservices'
-include ':app', ':cmalarms', ':utilities'
+include ':app', ':cmalarms'

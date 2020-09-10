@@ -14,11 +14,12 @@ import android.widget.TextView;
 
 import net.chetch.cmalarms.AlarmPanelFragment;
 import net.chetch.cmalarms.AlarmsMessageSchema;
+import net.chetch.cmalarms.IAlarmPanelActivity;
 import net.chetch.cmalarms.models.AlarmsMessagingModel;
 import net.chetch.webservices.WebserviceViewModel;
 import net.chetch.webservices.network.NetworkRepository;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements IAlarmPanelActivity {
 
     static boolean loaded = false;
 
@@ -73,5 +74,10 @@ public class MainActivity extends AppCompatActivity {
         Log.i("Main", "Calling load data");
         model.loadData(dataLoadProgress);
 
+    }
+
+    @Override
+    public AlarmsMessagingModel getAlarmsMessagingModel() {
+        return model;
     }
 }

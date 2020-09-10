@@ -11,6 +11,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/appresources" />
             <option value="$PROJECT_DIR$/cmalarms" />
             <option value="$PROJECT_DIR$/messaging" />
             <option value="$PROJECT_DIR$/utilities" />

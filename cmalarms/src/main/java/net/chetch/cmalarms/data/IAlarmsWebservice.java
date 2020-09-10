@@ -10,7 +10,7 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface IAlarmsWebservice {
-    String SERVICE_NAME = "Captains Log";
+    String SERVICE_NAME = "Alarms";
 
     @GET("about")
     Call<AboutService> getAbout();

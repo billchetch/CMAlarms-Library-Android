@@ -21,6 +21,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
 }
 
@@ -37,5 +41,7 @@ dependencies {
 
     implementation project(':messaging')
     implementation project(':webservices')
+    implementation project(':utilities')
+    implementation project(':appresources')
 
 }

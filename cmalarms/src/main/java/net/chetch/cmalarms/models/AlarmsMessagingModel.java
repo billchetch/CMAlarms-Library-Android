@@ -53,7 +53,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
             liveDataAlarms.postValue(l);
 
             //get alarm states
-            getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_ALARM_STATUS);
+            requestAlarmStates();
         }
     };
 
@@ -103,5 +103,22 @@ public class AlarmsMessagingModel extends MessagingViewModel {
 
     public LiveData<Alarm> getAlertedAlarm(){
         return liveDataAlertedAlarm;
+    }
+
+    //make calls to the service
+    public void requestAlarmStates(){
+        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_ALARM_STATUS);
+    }
+
+    public void disableAlarm(String deviceID){
+        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_DISABLE_ALARM, deviceID);
+    }
+
+    public void enableAlarm(String deviceID){
+        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_ENABLE_ALARM, deviceID);
+    }
+
+    public void testAlarm(String deviceID){
+        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_TEST_ALARM, deviceID);
     }
 }

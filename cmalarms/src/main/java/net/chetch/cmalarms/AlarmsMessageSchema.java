@@ -12,8 +12,7 @@ public class AlarmsMessageSchema extends MessageSchema{
     public enum AlarmState{
         OFF,
         ON,
-        DISABLED,
-        ENABLED
+        DISABLED
     }
 
     static public final String SERVICE_NAME = "BBAlarms";
