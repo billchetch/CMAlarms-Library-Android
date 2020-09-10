@@ -19,8 +19,8 @@ public class AlarmsMessageSchema extends MessageSchema{
 
     static public final String COMMAND_ALARM_STATUS = "alarm-status";
     static public final String COMMAND_LIST_ALARMS = "list-alarms";
-    static public final String COMMAND_SILENCE = "silence";
-    static public final String COMMAND_UNSILENCE = "unsilence";
+    static public final String COMMAND_SILENCE_BUZZER = "silence";
+    static public final String COMMAND_UNSILENCE_BUZZER = "unsilence";
     static public final String COMMAND_DISABLE_ALARM = "disable-alarm";
     static public final String COMMAND_ENABLE_ALARM = "enable-alarm";
     static public final String COMMAND_TEST_ALARM = "test-alarm";

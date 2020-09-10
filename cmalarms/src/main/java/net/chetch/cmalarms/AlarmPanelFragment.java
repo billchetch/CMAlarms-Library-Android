@@ -54,8 +54,13 @@ public class AlarmPanelFragment extends Fragment {
             try {
                 IAlarmPanelActivity activity = (IAlarmPanelActivity) getActivity();
                 AlarmsMessagingModel model = activity.getAlarmsMessagingModel();
-
-                model.silenceBuzzer(3);
+                if(model.isPilotOn()) {
+                    if(model.isBuzzerSilenced()){
+                        model.unsilenceBuzzer();
+                    } else {
+                        model.silenceBuzzer(10); //TODO: this should be a setting
+                    }
+                }
             } catch(Exception e){
                 Log.e("AlarmPanelFragment", e.getMessage());
             }

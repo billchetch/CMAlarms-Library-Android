@@ -4,6 +4,7 @@ import android.util.Log;
 
 import net.chetch.cmalarms.AlarmsMessageSchema;
 import net.chetch.cmalarms.data.Alarm;
+import net.chetch.messaging.ClientConnection;
 import net.chetch.messaging.Message;
 import net.chetch.messaging.MessagingViewModel;
 import net.chetch.messaging.filters.AlertFilter;
@@ -19,6 +20,7 @@ import androidx.lifecycle.MutableLiveData;
 
 public class AlarmsMessagingModel extends MessagingViewModel {
     Map<String, Alarm> alarmsMap = new HashMap<>();
+    String buzzerID;
     MutableLiveData<Alarm> liveDataAlertedAlarm = new MutableLiveData<>();
     MutableLiveData<List<Alarm>> liveDataAlarms = new MutableLiveData<>();
     MutableLiveData<Map<String, AlarmsMessageSchema.AlarmState>> liveDataAlarmStates = new MutableLiveData<>();
@@ -80,12 +82,11 @@ public class AlarmsMessagingModel extends MessagingViewModel {
             liveDataPilotOn.postValue(Boolean.valueOf(schema.isPilotOn()));
             liveDataBuzzerSilenced.postValue(Boolean.valueOf(schema.isBuzzerSilenced()));
 
-            //set the notification
-            onBuzzerNotification.Sender = schema.getBuzzerID();
+            buzzerID = schema.getBuzzerID();
         }
     };
 
-    public CommandResponseFilter onSilenced = new CommandResponseFilter(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_SILENCE) {
+    public CommandResponseFilter onBuzzerSilenced = new CommandResponseFilter(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_SILENCE_BUZZER) {
         @Override
         protected void onMatched(Message message) {
             AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
@@ -93,7 +94,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         }
     };
 
-    public CommandResponseFilter onUnsilenced = new CommandResponseFilter(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_UNSILENCE) {
+    public CommandResponseFilter onBuzzerUnsilenced = new CommandResponseFilter(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_UNSILENCE_BUZZER) {
         @Override
         protected void onMatched(Message message) {
             AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
@@ -101,10 +102,21 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         }
     };
 
-    public NotificationFilter onBuzzerNotification = new NotificationFilter("buzzer4") {
+    public NotificationFilter onBuzzerNotification = new NotificationFilter(AlarmsMessageSchema.SERVICE_NAME) {
+        @Override
+        protected boolean matches(Message message) {
+            boolean matches = super.matches(message);
+            if(matches){
+                AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
+                matches = schema.getDeviceID() != null && schema.getDeviceID().equals(buzzerID);
+            }
+            return matches;
+        }
+
         @Override
         protected void onMatched(Message message) {
             AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
+            liveDataBuzzerSilenced.postValue(Boolean.valueOf(schema.isBuzzerSilenced()));
             Log.i("AMM", "Notification from buzzer");
         }
     };
@@ -115,8 +127,8 @@ public class AlarmsMessagingModel extends MessagingViewModel {
             addMessageFilter(onAlarmAlert);
             addMessageFilter(onListAlarms);
             addMessageFilter(onAlarmStatus);
-            addMessageFilter(onSilenced);
-            addMessageFilter(onUnsilenced);
+            addMessageFilter(onBuzzerSilenced);
+            addMessageFilter(onBuzzerUnsilenced);
             addMessageFilter(onBuzzerNotification);
         } catch (Exception e){
             Log.e("AMM", e.getMessage());
@@ -128,6 +140,12 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         super.onClientConnected();
         Log.i("AMM", "Client connected so requesting list of alarms");
         getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_LIST_ALARMS);
+    }
+
+    @Override
+    public void handleReceivedMessage(Message message, ClientConnection cnn) {
+        super.handleReceivedMessage(message, cnn);
+        Log.i("AMM", "Receive message " + message.Type);
     }
 
     public LiveData<List<Alarm>> getAlarms(){
@@ -167,11 +185,18 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_TEST_ALARM, deviceID);
     }
 
-    public void silenceBuzzer(int silenceDuration){
-        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_SILENCE, silenceDuration);
+    public boolean isPilotOn(){
+        return liveDataPilotOn.getValue();
     }
 
-    public void unilenceBuzzer(){
-        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_UNSILENCE);
+    public boolean isBuzzerSilenced(){
+        return liveDataBuzzerSilenced.getValue();
+    }
+    public void silenceBuzzer(int silenceDuration){
+        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_SILENCE_BUZZER, silenceDuration);
+    }
+
+    public void unsilenceBuzzer(){
+        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_UNSILENCE_BUZZER);
     }
 }
