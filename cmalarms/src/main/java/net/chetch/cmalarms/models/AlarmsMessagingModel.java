@@ -8,6 +8,7 @@ import net.chetch.messaging.Message;
 import net.chetch.messaging.MessagingViewModel;
 import net.chetch.messaging.filters.AlertFilter;
 import net.chetch.messaging.filters.CommandResponseFilter;
+import net.chetch.messaging.filters.NotificationFilter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +22,8 @@ public class AlarmsMessagingModel extends MessagingViewModel {
     MutableLiveData<Alarm> liveDataAlertedAlarm = new MutableLiveData<>();
     MutableLiveData<List<Alarm>> liveDataAlarms = new MutableLiveData<>();
     MutableLiveData<Map<String, AlarmsMessageSchema.AlarmState>> liveDataAlarmStates = new MutableLiveData<>();
+    MutableLiveData<Boolean> liveDataPilotOn = new MutableLiveData<>();
+    MutableLiveData<Boolean> liveDataBuzzerSilenced = new MutableLiveData<>();
 
     public AlertFilter onAlarmAlert = new AlertFilter(AlarmsMessageSchema.SERVICE_NAME){
         @Override
@@ -34,6 +37,8 @@ public class AlarmsMessagingModel extends MessagingViewModel {
                 alarm.alarmState = astate;
                 liveDataAlertedAlarm.postValue(alarm);
             }
+            liveDataPilotOn.postValue(Boolean.valueOf(schema.isPilotOn()));
+            liveDataBuzzerSilenced.postValue(Boolean.valueOf(schema.isBuzzerSilenced()));
         }
     };
 
@@ -72,6 +77,35 @@ public class AlarmsMessagingModel extends MessagingViewModel {
             }
 
             liveDataAlarmStates.postValue(l);
+            liveDataPilotOn.postValue(Boolean.valueOf(schema.isPilotOn()));
+            liveDataBuzzerSilenced.postValue(Boolean.valueOf(schema.isBuzzerSilenced()));
+
+            //set the notification
+            onBuzzerNotification.Sender = schema.getBuzzerID();
+        }
+    };
+
+    public CommandResponseFilter onSilenced = new CommandResponseFilter(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_SILENCE) {
+        @Override
+        protected void onMatched(Message message) {
+            AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
+            liveDataBuzzerSilenced.postValue(Boolean.valueOf(schema.isBuzzerSilenced()));
+        }
+    };
+
+    public CommandResponseFilter onUnsilenced = new CommandResponseFilter(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_UNSILENCE) {
+        @Override
+        protected void onMatched(Message message) {
+            AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
+            liveDataBuzzerSilenced.postValue(Boolean.valueOf(schema.isBuzzerSilenced()));
+        }
+    };
+
+    public NotificationFilter onBuzzerNotification = new NotificationFilter("buzzer4") {
+        @Override
+        protected void onMatched(Message message) {
+            AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
+            Log.i("AMM", "Notification from buzzer");
         }
     };
 
@@ -81,6 +115,9 @@ public class AlarmsMessagingModel extends MessagingViewModel {
             addMessageFilter(onAlarmAlert);
             addMessageFilter(onListAlarms);
             addMessageFilter(onAlarmStatus);
+            addMessageFilter(onSilenced);
+            addMessageFilter(onUnsilenced);
+            addMessageFilter(onBuzzerNotification);
         } catch (Exception e){
             Log.e("AMM", e.getMessage());
         }
@@ -105,6 +142,14 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         return liveDataAlertedAlarm;
     }
 
+    public LiveData<Boolean> getPilotOn(){
+        return liveDataPilotOn;
+    }
+
+    public LiveData<Boolean> getBuzzerSilenced(){
+        return liveDataBuzzerSilenced;
+    }
+
     //make calls to the service
     public void requestAlarmStates(){
         getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_ALARM_STATUS);
@@ -120,5 +165,13 @@ public class AlarmsMessagingModel extends MessagingViewModel {
 
     public void testAlarm(String deviceID){
         getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_TEST_ALARM, deviceID);
+    }
+
+    public void silenceBuzzer(int silenceDuration){
+        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_SILENCE, silenceDuration);
+    }
+
+    public void unilenceBuzzer(){
+        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_UNSILENCE);
     }
 }

@@ -70,6 +70,16 @@ public class MainActivity extends AppCompatActivity implements IAlarmPanelActivi
             alarmPanelFragment.updateAlarmState(alarm.getDeviceID(), alarm.alarmState);
         });
 
+        model.getPilotOn().observe(this, on->{
+            Log.i("Main", "Pilot light on " + on);
+            alarmPanelFragment.updatePilotOn(on);
+        });
+
+        model.getBuzzerSilenced().observe(this, silenced->{
+            Log.i("Main", "Buzzer silenced " + silenced);
+            alarmPanelFragment.updateBuzzerSilenced(silenced);
+        });
+
         //now load up
         Log.i("Main", "Calling load data");
         model.loadData(dataLoadProgress);

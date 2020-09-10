@@ -3,33 +3,32 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/alarmHorizontal"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <ImageView
-        android:id="@+id/alarmButtonBg"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/alarm_button_background" />
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
     <Button
         android:id="@+id/alarmButton"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
         android:layout_marginStart="2dp"
         android:layout_marginTop="2dp"
         android:background="@drawable/alarm_button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:id="@+id/alarmButtonBg"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/alarm_button_background" />
+
     <TextView
         android:id="@+id/alarmName"
-        android:layout_width="wrap_content"
+        android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
-        android:layout_marginTop="4dp"
         android:text="TextView"
         app:layout_constraintStart_toEndOf="@+id/alarmButtonBg"
         app:layout_constraintTop_toTopOf="parent" />

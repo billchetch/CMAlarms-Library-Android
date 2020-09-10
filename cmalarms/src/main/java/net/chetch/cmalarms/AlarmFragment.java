@@ -38,8 +38,8 @@ public class AlarmFragment extends Fragment {
     AlarmsMessageSchema.AlarmState currentAlarmState;
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         btnColourMap.put(AlarmsMessageSchema.AlarmState.DISABLED, ContextCompat.getColor(getContext(), R.color.mediumnDarkGrey));
         btnColourMap.put(AlarmsMessageSchema.AlarmState.ON, ContextCompat.getColor(getContext(), R.color.errorRed));
@@ -129,7 +129,7 @@ public class AlarmFragment extends Fragment {
                     break;
             }
         } catch (Exception e){
-            Log.e("AlarmPanel", "onContextItemSelected: " + e.getMessage());
+            Log.e("AlarmPanel", "onCreatContextMenu: " + e.getMessage());
         }
     }
 }

@@ -64,4 +64,20 @@ public class AlarmsMessageSchema extends MessageSchema{
         }
         return alarms2return;
     }
+
+    public String getPilotID(){
+        return message.getString("PilotID");
+    }
+
+    public boolean isPilotOn(){
+        return message.getBoolean("PilotOn");
+    }
+
+    public String getBuzzerID(){
+        return message.getString("BuzzerID");
+    }
+
+    public boolean isBuzzerSilenced(){
+        return message.getBoolean("BuzzerSilenced");
+    }
 }
