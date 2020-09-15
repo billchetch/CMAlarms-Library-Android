@@ -6,12 +6,17 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.helper.widget.Flow;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,6 +42,8 @@ public class AlarmPanelFragment extends Fragment {
     ImageButton buzzerButton;
     ValueAnimator animator;
     Map<String, AlarmsMessageSchema.AlarmState> alarmStates = new HashMap<>();
+    AlarmsMessagingModel model;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,8 +59,6 @@ public class AlarmPanelFragment extends Fragment {
         buzzerButton.setOnClickListener((view)->{
             //this will silence/unsilence
             try {
-                IAlarmPanelActivity activity = (IAlarmPanelActivity) getActivity();
-                AlarmsMessagingModel model = activity.getAlarmsMessagingModel();
                 if(model.isPilotOn()) {
                     if(model.isBuzzerSilenced()){
                         model.unsilenceBuzzer();
@@ -69,6 +74,38 @@ public class AlarmPanelFragment extends Fragment {
 
         Log.i("AlarmPanelFragment", "Created view");
         return contentView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if(model == null) {
+            model = ViewModelProviders.of(getActivity()).get(AlarmsMessagingModel.class);
+            model.getAlarms().observe(getViewLifecycleOwner(), alarms -> {
+                Log.i("AlarmPanelFragment", "Alarms list " + alarms.size() + " alarms arrived!");
+                populateAlarms(alarms);
+            });
+
+            model.getAlarmStates().observe(getViewLifecycleOwner(), alarmStates -> {
+                Log.i("AlarmPanelFragment", "Alarm states " + alarmStates.size() + " states arrived!");
+                updateAlarmStates(alarmStates);
+            });
+
+            model.getAlertedAlarm().observe(getViewLifecycleOwner(), alarm -> {
+                Log.i("AlarmPanelFragment", "Alarm alert " + alarm.getDeviceID() + " state " + alarm.alarmState);
+                updateAlarmState(alarm.getDeviceID(), alarm.alarmState);
+            });
+
+            model.getPilotOn().observe(getViewLifecycleOwner(), on -> {
+                Log.i("AlarmPanelFragment", "Pilot light on " + on);
+                updatePilotOn(on);
+            });
+
+            model.getBuzzerSilenced().observe(getViewLifecycleOwner(), silenced -> {
+                Log.i("AlarmPanelFragment", "Buzzer silenced " + silenced);
+                updateBuzzerSilenced(silenced);
+            });
+        }
     }
 
     @Override

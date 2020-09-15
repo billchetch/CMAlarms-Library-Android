@@ -6,6 +6,7 @@ import net.chetch.cmalarms.AlarmsMessageSchema;
 import net.chetch.cmalarms.data.Alarm;
 import net.chetch.messaging.ClientConnection;
 import net.chetch.messaging.Message;
+import net.chetch.messaging.MessageType;
 import net.chetch.messaging.MessagingViewModel;
 import net.chetch.messaging.filters.AlertFilter;
 import net.chetch.messaging.filters.CommandResponseFilter;
@@ -66,9 +67,16 @@ public class AlarmsMessagingModel extends MessagingViewModel {
 
     public CommandResponseFilter onAlarmStatus = new CommandResponseFilter(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_ALARM_STATUS){
         @Override
-        protected void onMatched(Message message) {
+        protected void onMatched(Message message){
             Log.i("AMM", "On Alarm Status");
             AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
+
+            if(!message.hasValue("Pilot")){
+                String msg = "Alarm panel offline (no pilot light detected)";
+                setError(msg);
+                return;
+            }
+
             Map<String, AlarmsMessageSchema.AlarmState> l = schema.getAlarmStates();
 
             //we take this opportunity to update the alarm state properties
@@ -140,12 +148,6 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         super.onClientConnected();
         Log.i("AMM", "Client connected so requesting list of alarms");
         getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_LIST_ALARMS);
-    }
-
-    @Override
-    public void handleReceivedMessage(Message message, ClientConnection cnn) {
-        super.handleReceivedMessage(message, cnn);
-        Log.i("AMM", "Receive message " + message.Type);
     }
 
     public LiveData<List<Alarm>> getAlarms(){

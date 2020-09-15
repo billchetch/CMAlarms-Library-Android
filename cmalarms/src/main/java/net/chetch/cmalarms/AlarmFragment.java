@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.util.Log;
 import android.view.ContextMenu;
@@ -31,6 +32,8 @@ public class AlarmFragment extends Fragment {
 
     Map<AlarmsMessageSchema.AlarmState, Integer> btnColourMap = new HashMap<>();
     Map<AlarmsMessageSchema.AlarmState, Integer> lblColourMap = new HashMap<>();
+
+    AlarmsMessagingModel model;
 
     public Alarm alarm;
     public boolean horizontal = true;
@@ -77,6 +80,12 @@ public class AlarmFragment extends Fragment {
         return contentView;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        model = ViewModelProviders.of(getActivity()).get(AlarmsMessagingModel.class);
+    }
+
     public void updateAlarmState(AlarmsMessageSchema.AlarmState alarmState){
         try {
             Button btn = contentView.findViewById(R.id.alarmButton);
@@ -99,7 +108,6 @@ public class AlarmFragment extends Fragment {
     public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, @Nullable ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         try {
-            AlarmsMessagingModel model = ((IAlarmPanelActivity) getActivity()).getAlarmsMessagingModel();
             MenuItem.OnMenuItemClickListener selectItem = (item) -> {
                 switch(item.getItemId()){
                     case MENU_ITEM_DISABLE:
