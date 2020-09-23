@@ -3,6 +3,7 @@ package net.chetch.cmalarms;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
@@ -24,8 +25,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import net.chetch.cmalarms.data.Alarm;
 import net.chetch.cmalarms.models.AlarmsMessagingModel;
@@ -41,16 +45,15 @@ public class AlarmPanelFragment extends Fragment {
     View contentView;
     ImageButton buzzerButton;
     ValueAnimator animator;
-    Map<String, AlarmsMessageSchema.AlarmState> alarmStates = new HashMap<>();
+    Map<String, Alarm> alarmsMap = new HashMap<>();
     AlarmsMessagingModel model;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         if(horizontal) {
-            contentView = inflater.inflate(R.layout.alarm_panel_horizontal, container, false);
+            contentView = inflater.inflate(R.layout.alarm_panel_horizontal_scroll, container, false);
         } else {
             contentView = inflater.inflate(R.layout.alarm_panel_vertical, container, false);
         }
@@ -122,7 +125,7 @@ public class AlarmPanelFragment extends Fragment {
 
     }
 
-    public void populateAlarms(List<Alarm> alarms){
+    /*public void populateAlarms(List<Alarm> alarms){
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragTransaction = fragmentManager.beginTransaction();
 
@@ -150,23 +153,31 @@ public class AlarmPanelFragment extends Fragment {
         fragTransaction.commit();
         Flow flow = contentView.findViewById(R.id.alarmsFlow);
         if(flow != null)flow.setReferencedIds(vids);
-    }
+    }*/
 
+    public void populateAlarms(List<Alarm> alarms) {
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragTransaction = fragmentManager.beginTransaction();
+
+        alarmsMap.clear();
+        for(Alarm a : alarms) {
+            AlarmFragment af = (AlarmFragment) fragmentManager.findFragmentByTag(a.getDeviceID());
+            if (af != null)fragTransaction.remove(af);
+            af = new AlarmFragment();
+            af.alarm = a;
+            af.horizontal = horizontal;
+            fragTransaction.add(R.id.alarmsCtn, af, a.getDeviceID());
+
+            //we keep a record
+            alarmsMap.put(a.getDeviceID(), a);
+        }
+        fragTransaction.commit();
+    }
 
     public void updateAlarmStates(Map<String, AlarmsMessageSchema.AlarmState> alarmStates){
         for(Map.Entry<String, AlarmsMessageSchema.AlarmState> entry : alarmStates.entrySet()){
             updateAlarmState(entry.getKey(), entry.getValue());
-
-            //keep a record
-            this.alarmStates.put(entry.getKey(), entry.getValue());
         }
-    }
-
-    private boolean hasAlarmWithState(AlarmsMessageSchema.AlarmState alarmState){
-        for(AlarmsMessageSchema.AlarmState astate : alarmStates.values()){
-            if(astate == alarmState)return true;
-        }
-        return false;
     }
 
     public void updateAlarmState(String deviceID, AlarmsMessageSchema.AlarmState alarmState){
@@ -178,8 +189,41 @@ public class AlarmPanelFragment extends Fragment {
             Log.e("AlarmPanelFragment", "Cannot find fragment for alarm " + deviceID);
         }
 
-        //keep a record
-        alarmStates.put(deviceID, alarmState);
+        if(alarmState == AlarmsMessageSchema.AlarmState.ON){
+            HorizontalScrollView sv = contentView.findViewById(R.id.alarmsCtnScrollView);
+            sv.smoothScrollTo(af.getView().getLeft(), 0);
+        }
+        //update panel info
+        updateAlarmPanelInfo();
+    }
+
+    private void updateAlarmPanelInfo(){
+        int disabled = 0;
+        int on  = 0;
+        int off = 0;
+        String alarmMessages = null;
+        for(Alarm a : alarmsMap.values()){
+            switch(a.alarmState){
+                case DISABLED:
+                    disabled++; break;
+                case ON:
+                    alarmMessages = (alarmMessages == null ? "" : alarmMessages + ", ") + a.getName() + ": " + a.alarmMessage;
+                    on++; break;
+                case OFF:
+                    off++; break;
+            }
+        }
+
+        TextView tv = contentView.findViewById(R.id.alarmInfo);
+        if(on ==  0){
+            tv.setTextColor(ContextCompat.getColor(getContext(), R.color.lightGrey));
+            tv.setTypeface(tv.getTypeface(), Typeface.ITALIC);
+            tv.setText(disabled == 0 ? "All alarms operational" : disabled + " alarms disabled, " + off + " alarms operational");
+        } else {
+            tv.setTextColor(ContextCompat.getColor(getContext(), R.color.errorRed));
+            tv.setTypeface(tv.getTypeface(), Typeface.BOLD_ITALIC);
+            tv.setText(alarmMessages);
+        }
     }
 
     public void updatePilotOn(boolean isAlarmOn){

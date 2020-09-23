@@ -35,9 +35,11 @@ public class AlarmsMessagingModel extends MessagingViewModel {
             AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
             String deviceID = schema.getDeviceID();
             AlarmsMessageSchema.AlarmState astate = schema.getAlarmState();
+            String amessage = schema.getAlarmMessage();
             if(alarmsMap.containsKey(deviceID)) {
                 Alarm alarm = alarmsMap.get(deviceID);
                 alarm.alarmState = astate;
+                alarm.alarmMessage = amessage;
                 liveDataAlertedAlarm.postValue(alarm);
             }
             liveDataPilotOn.postValue(Boolean.valueOf(schema.isPilotOn()));
@@ -82,7 +84,8 @@ public class AlarmsMessagingModel extends MessagingViewModel {
             //we take this opportunity to update the alarm state properties
             for(Map.Entry<String, AlarmsMessageSchema.AlarmState> entry : l.entrySet()){
                 if(alarmsMap.containsKey(entry.getKey())){
-                    alarmsMap.get(entry.getKey()).alarmState = entry.getValue();
+                    Alarm a = alarmsMap.get(entry.getKey());
+                    a.alarmState = entry.getValue();
                 }
             }
 

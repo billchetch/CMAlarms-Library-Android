@@ -37,6 +37,9 @@ public class AlarmsMessageSchema extends MessageSchema{
     public AlarmState getAlarmState(){
         return message.getEnum("AlarmState", AlarmState.class);
     }
+    public String getAlarmMessage(){
+        return message.hasValue("AlarmMessage") ? message.getString("AlarmMessage") : null;
+    }
 
     public Map<String, AlarmState> getAlarmStates(){
         return message.getMap("AlarmStates", AlarmState.class);
