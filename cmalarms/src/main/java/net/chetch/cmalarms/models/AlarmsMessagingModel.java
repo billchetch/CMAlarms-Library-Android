@@ -2,11 +2,8 @@ package net.chetch.cmalarms.models;
 
 import android.util.Log;
 
-import net.chetch.cmalarms.AlarmsMessageSchema;
 import net.chetch.cmalarms.data.Alarm;
-import net.chetch.messaging.ClientConnection;
 import net.chetch.messaging.Message;
-import net.chetch.messaging.MessageType;
 import net.chetch.messaging.MessagingViewModel;
 import net.chetch.messaging.filters.AlertFilter;
 import net.chetch.messaging.filters.CommandResponseFilter;

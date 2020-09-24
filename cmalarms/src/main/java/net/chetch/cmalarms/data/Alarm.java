@@ -1,6 +1,6 @@
 package net.chetch.cmalarms.data;
 
-import net.chetch.cmalarms.AlarmsMessageSchema;
+import net.chetch.cmalarms.models.AlarmsMessageSchema;
 import net.chetch.webservices.DataObject;
 
 public class Alarm extends DataObject {

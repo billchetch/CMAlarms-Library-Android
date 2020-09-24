@@ -1,6 +1,5 @@
 package net.chetch.cmalarms;
 
-import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
@@ -16,10 +15,11 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.chetch.cmalarms.data.Alarm;
+import net.chetch.cmalarms.models.AlarmsMessageSchema;
 import net.chetch.cmalarms.models.AlarmsMessagingModel;
 
 import java.util.HashMap;
@@ -30,7 +30,7 @@ public class AlarmFragment extends Fragment {
     static final int MENU_ITEM_ENABLE = 2;
     static final int MENU_ITEM_TEST = 3;
 
-    Map<AlarmsMessageSchema.AlarmState, Integer> btnColourMap = new HashMap<>();
+    Map<AlarmsMessageSchema.AlarmState, Integer> indidcatorColourMap = new HashMap<>();
     Map<AlarmsMessageSchema.AlarmState, Integer> lblColourMap = new HashMap<>();
 
     AlarmsMessagingModel model;
@@ -44,9 +44,9 @@ public class AlarmFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        btnColourMap.put(AlarmsMessageSchema.AlarmState.DISABLED, ContextCompat.getColor(getContext(), R.color.mediumnDarkGrey));
-        btnColourMap.put(AlarmsMessageSchema.AlarmState.ON, ContextCompat.getColor(getContext(), R.color.errorRed));
-        btnColourMap.put(AlarmsMessageSchema.AlarmState.OFF, ContextCompat.getColor(getContext(), R.color.bluegreen2));
+        indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.DISABLED, ContextCompat.getColor(getContext(), R.color.mediumnDarkGrey));
+        indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.ON, ContextCompat.getColor(getContext(), R.color.errorRed));
+        indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.OFF, ContextCompat.getColor(getContext(), R.color.bluegreen2));
 
         lblColourMap.put(AlarmsMessageSchema.AlarmState.DISABLED, ContextCompat.getColor(getContext(), R.color.mediumnDarkGrey));
         lblColourMap.put(AlarmsMessageSchema.AlarmState.ON, ContextCompat.getColor(getContext(), R.color.white));
@@ -73,8 +73,7 @@ public class AlarmFragment extends Fragment {
             }
         }
 
-        Button btn = contentView.findViewById(R.id.alarmButton);
-        registerForContextMenu(btn);
+        registerForContextMenu(contentView);
 
         Log.i("AlarmFragment", "Created view " + getTag());
         return contentView;
@@ -88,10 +87,10 @@ public class AlarmFragment extends Fragment {
 
     public void updateAlarmState(AlarmsMessageSchema.AlarmState alarmState){
         try {
-            Button btn = contentView.findViewById(R.id.alarmButton);
-            GradientDrawable bg = (GradientDrawable)btn.getBackground();
-            int btnColour = btnColourMap.get(alarmState);
-            bg.setColor(btnColour);
+            ImageView iv = contentView.findViewById(R.id.alarmIndicator);
+            GradientDrawable gd = (GradientDrawable)iv.getDrawable();
+            int indicatorColour = indidcatorColourMap.get(alarmState);
+            gd.setColor(indicatorColour);
 
             TextView tv = contentView.findViewById(R.id.alarmName);
             int lblColour = lblColourMap.get(alarmState);

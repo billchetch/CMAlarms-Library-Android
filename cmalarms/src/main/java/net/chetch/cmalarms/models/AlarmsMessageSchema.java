@@ -1,4 +1,4 @@
-package net.chetch.cmalarms;
+package net.chetch.cmalarms.models;
 
 import net.chetch.cmalarms.data.Alarm;
 import net.chetch.messaging.Message;
