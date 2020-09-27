@@ -28,6 +28,7 @@ import android.widget.TextView;
 import net.chetch.cmalarms.data.Alarm;
 import net.chetch.cmalarms.models.AlarmsMessageSchema;
 import net.chetch.cmalarms.models.AlarmsMessagingModel;
+import net.chetch.messaging.MessagingViewModel;
 import net.chetch.utilities.Animation;
 
 import java.util.HashMap;
@@ -79,6 +80,34 @@ public class AlarmPanelFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         if(model == null) {
             model = ViewModelProviders.of(getActivity()).get(AlarmsMessagingModel.class);
+
+            model.getMessagingService().observe(getViewLifecycleOwner(), ms -> {
+                //we assume this is always the alarms messaging service
+                View mainLayout = contentView.findViewById(R.id.mainLayout);
+                View progressCtn = contentView.findViewById(R.id.progressCtn);
+                switch(ms.state){
+                    case RESPONDING:
+                        progressCtn.setVisibility(View.INVISIBLE);
+                        mainLayout.setVisibility(View.VISIBLE);
+                        mainLayout.setAlpha(1.0f);
+                        Log.i("AlarmPanelFragment", "Messaging service is RESPONDING");
+                        break;
+
+                    case NOT_CONNECTED:
+                    case NOT_RESPONDING:
+                        mainLayout.setAlpha(0.5f);
+                        progressCtn.setVisibility(View.VISIBLE);
+                        contentView.findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
+
+                        TextView tv = contentView.findViewById(R.id.serviceState);
+                        tv.setVisibility(View.VISIBLE);
+                        tv.setText(ms.state == MessagingViewModel.MessagingServiceState.NOT_RESPONDING ? "Not responding" : "Not connected");
+
+                        Log.i("AlarmPanelFragment", "Messaging service is " + ms.state);
+                        break;
+                }
+            });
+
             model.getAlarms().observe(getViewLifecycleOwner(), alarms -> {
                 Log.i("AlarmPanelFragment", "Alarms list " + alarms.size() + " alarms arrived!");
                 populateAlarms(alarms);

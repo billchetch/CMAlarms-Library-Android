@@ -3,6 +3,7 @@ package net.chetch.cmalarms.models;
 import android.util.Log;
 
 import net.chetch.cmalarms.data.Alarm;
+import net.chetch.messaging.ClientConnection;
 import net.chetch.messaging.Message;
 import net.chetch.messaging.MessagingViewModel;
 import net.chetch.messaging.filters.AlertFilter;
@@ -148,6 +149,16 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         super.onClientConnected();
         Log.i("AMM", "Client connected so requesting list of alarms");
         getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_LIST_ALARMS);
+    }
+
+    @Override
+    protected int onTimer(){
+        return super.onTimer();
+    }
+
+    @Override
+    public void handleReceivedMessage(Message message, ClientConnection cnn) {
+        super.handleReceivedMessage(message, cnn);
     }
 
     public LiveData<List<Alarm>> getAlarms(){
