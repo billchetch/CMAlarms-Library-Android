@@ -29,8 +29,9 @@
 
         <TextView
             android:id="@+id/serviceState"
-            android:layout_width="100dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="-"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -40,20 +41,18 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mainLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="0dp"
-        tools:visibility="invisible">
+        tools:visibility="visible">
 
         <HorizontalScrollView
             android:id="@+id/alarmsCtnScrollView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            app:layout_constraintEnd_toStartOf="@+id/buzzerContainer"
+            app:layout_constraintEnd_toStartOf="@+id/pilotCtn"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -76,42 +75,44 @@
             app:layout_constraintTop_toBottomOf="@+id/alarmsCtnScrollView" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/buzzerContainer"
+            android:id="@+id/pilotCtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="8dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible">
 
-            <ImageView
-                android:id="@+id/buzzerButtonBgBg"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                app:layout_constraintEnd_toEndOf="parent"
+            <ImageButton
+                android:id="@+id/buzzerButton"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginTop="2dp"
+                android:background="@null"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/buzzer_button_background" />
+                app:srcCompat="@drawable/ic_soundon_white_18dp" />
 
             <ImageView
-                android:id="@+id/buzzerButtonBg"
-                android:layout_width="46dp"
-                android:layout_height="46dp"
+                android:id="@+id/pilot"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="2dp"
                 android:layout_marginTop="2dp"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/buzzer_button" />
 
-            <ImageButton
-                android:id="@+id/buzzerButton"
-                android:layout_width="42dp"
-                android:layout_height="42dp"
-                android:layout_marginTop="4dp"
-                android:background="@null"
+            <ImageView
+                android:id="@+id/pilotBg"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_soundon_white_18dp" />
+                app:srcCompat="@drawable/buzzer_button_background" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

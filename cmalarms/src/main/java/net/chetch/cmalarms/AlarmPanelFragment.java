@@ -39,7 +39,7 @@ public class AlarmPanelFragment extends Fragment {
     public boolean horizontal = true;
 
     View contentView;
-    ImageButton buzzerButton;
+    ImageView buzzerButton;
     ValueAnimator animator;
     Map<String, Alarm> alarmsMap = new HashMap<>();
     AlarmsMessagingModel model;
@@ -71,6 +71,10 @@ public class AlarmPanelFragment extends Fragment {
         });
 
 
+        View mainLayout = contentView.findViewById(R.id.mainLayout);
+        //progressCtn.setVisibility(View.INVISIBLE);
+        mainLayout.setVisibility(View.INVISIBLE);
+
         Log.i("AlarmPanelFragment", "Created view");
         return contentView;
     }
@@ -89,20 +93,32 @@ public class AlarmPanelFragment extends Fragment {
                     case RESPONDING:
                         progressCtn.setVisibility(View.INVISIBLE);
                         mainLayout.setVisibility(View.VISIBLE);
-                        mainLayout.setAlpha(1.0f);
                         Log.i("AlarmPanelFragment", "Messaging service is RESPONDING");
                         break;
 
                     case NOT_CONNECTED:
                     case NOT_RESPONDING:
-                        mainLayout.setAlpha(0.5f);
+                    case NOT_FOUND:
+                        mainLayout.setVisibility(View.INVISIBLE);
                         progressCtn.setVisibility(View.VISIBLE);
                         contentView.findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
 
                         TextView tv = contentView.findViewById(R.id.serviceState);
                         tv.setVisibility(View.VISIBLE);
-                        tv.setText(ms.state == MessagingViewModel.MessagingServiceState.NOT_RESPONDING ? "Not responding" : "Not connected");
+                        String msg = "";
+                        if(ms.state == MessagingViewModel.MessagingServiceState.NOT_FOUND) {
+                            msg = "Cannot configure service as configuration details not found (possible webserver issue)";
+                        } else if(ms.state == MessagingViewModel.MessagingServiceState.NOT_RESPONDING){
+                            msg = "Alarms service is not responding";
+                        } else {
+                            msg = "Alarms service is not connected.  Check service has started.";
+                        }
+                        tv.setText(msg);
 
+                        Log.i("AlarmPanelFragment", "Messaging service is " + ms.state);
+                        break;
+
+                    default:
                         Log.i("AlarmPanelFragment", "Messaging service is " + ms.state);
                         break;
                 }
@@ -252,8 +268,8 @@ public class AlarmPanelFragment extends Fragment {
 
     public void updatePilotOn(boolean isAlarmOn){
         //set the buzzer bg
-        ImageView bg = contentView.findViewById(R.id.buzzerButtonBg);
-        GradientDrawable d = (GradientDrawable)bg.getDrawable();
+        ImageView pilot = contentView.findViewById(R.id.pilot);
+        GradientDrawable d = (GradientDrawable)pilot.getDrawable();
         int onColour = ContextCompat.getColor(getContext(), R.color.errorRed);
         int offColour = ContextCompat.getColor(getContext(), R.color.mediumnDarkGrey);
         if(isAlarmOn){
