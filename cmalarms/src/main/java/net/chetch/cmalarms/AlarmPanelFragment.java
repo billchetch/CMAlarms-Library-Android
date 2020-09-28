@@ -21,7 +21,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -54,7 +53,7 @@ public class AlarmPanelFragment extends Fragment {
             contentView = inflater.inflate(R.layout.alarm_panel_vertical, container, false);
         }
 
-        buzzerButton = contentView.findViewById(R.id.buzzerButton);
+        buzzerButton = contentView.findViewById(R.id.alarmsBuzzerButton);
         buzzerButton.setOnClickListener((view)->{
             //this will silence/unsilence
             try {
@@ -71,7 +70,7 @@ public class AlarmPanelFragment extends Fragment {
         });
 
 
-        View mainLayout = contentView.findViewById(R.id.mainLayout);
+        View mainLayout = contentView.findViewById(R.id.alarmsMainLayout);
         //progressCtn.setVisibility(View.INVISIBLE);
         mainLayout.setVisibility(View.INVISIBLE);
 
@@ -87,8 +86,8 @@ public class AlarmPanelFragment extends Fragment {
 
             model.getMessagingService().observe(getViewLifecycleOwner(), ms -> {
                 //we assume this is always the alarms messaging service
-                View mainLayout = contentView.findViewById(R.id.mainLayout);
-                View progressCtn = contentView.findViewById(R.id.progressCtn);
+                View mainLayout = contentView.findViewById(R.id.alarmsMainLayout);
+                View progressCtn = contentView.findViewById(R.id.alarmsProgressCtn);
                 switch(ms.state){
                     case RESPONDING:
                         progressCtn.setVisibility(View.INVISIBLE);
@@ -101,9 +100,9 @@ public class AlarmPanelFragment extends Fragment {
                     case NOT_FOUND:
                         mainLayout.setVisibility(View.INVISIBLE);
                         progressCtn.setVisibility(View.VISIBLE);
-                        contentView.findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
+                        contentView.findViewById(R.id.alarmsProgressBar).setVisibility(View.INVISIBLE);
 
-                        TextView tv = contentView.findViewById(R.id.serviceState);
+                        TextView tv = contentView.findViewById(R.id.alarmsServiceState);
                         tv.setVisibility(View.VISIBLE);
                         String msg = "";
                         if(ms.state == MessagingViewModel.MessagingServiceState.NOT_FOUND) {
@@ -268,7 +267,7 @@ public class AlarmPanelFragment extends Fragment {
 
     public void updatePilotOn(boolean isAlarmOn){
         //set the buzzer bg
-        ImageView pilot = contentView.findViewById(R.id.pilot);
+        ImageView pilot = contentView.findViewById(R.id.alarmsPilot);
         GradientDrawable d = (GradientDrawable)pilot.getDrawable();
         int onColour = ContextCompat.getColor(getContext(), R.color.errorRed);
         int offColour = ContextCompat.getColor(getContext(), R.color.mediumnDarkGrey);

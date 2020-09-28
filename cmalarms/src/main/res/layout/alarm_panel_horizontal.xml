@@ -51,7 +51,7 @@
             app:srcCompat="@drawable/buzzer_button" />
 
         <ImageButton
-            android:id="@+id/buzzerButton"
+            android:id="@+id/alarmsBuzzerButton"
             android:layout_width="42dp"
             android:layout_height="42dp"
             android:layout_marginTop="4dp"
