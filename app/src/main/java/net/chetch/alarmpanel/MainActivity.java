@@ -39,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             //String apiBaseURL = "http://192.168.43.123:8001/api/";
-            String apiBaseURL = "http://192.168.0.123:8001/api/";
+            //String apiBaseURL = "http://192.168.0.123:8001/api/";
+            String apiBaseURL = "http://192.168.0.150:8001/api/";
             //String apiBaseURL = "http://192.168.1.100:8001/api/";
             //String apiBaseURL = "http://192.168.0.106:8001/api/";
             //String apiBaseURL = "http://192.168.0.52:8001/api/";

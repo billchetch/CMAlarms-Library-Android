@@ -164,35 +164,19 @@ public class AlarmPanelFragment extends Fragment {
 
     }
 
-    /*public void populateAlarms(List<Alarm> alarms){
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragTransaction = fragmentManager.beginTransaction();
+    @Override
+    public void onStart() {
+        super.onStart();
 
-        ConstraintLayout layout = (ConstraintLayout)contentView;
-        int[] vids = new int[alarms.size()];
-        int i = 0;
-        int vid = 0;
-        for(Alarm a : alarms){
-            AlarmFragment af = (AlarmFragment)fragmentManager.findFragmentByTag(a.getDeviceID());
-            if(af != null)fragTransaction.remove(af);
-            af = new AlarmFragment();
-            af.alarm = a;
-            af.horizontal = horizontal;
+        model.resumePingServices(); //incase this is restarting
+    }
 
-            vid = View.generateViewId();
-            ViewGroup vg = new FrameLayout(getContext());
-            vg.setId(vid);
+    @Override
+    public void onStop() {
+        super.onStop();
 
-            fragTransaction.replace(vg.getId(), af, a.getDeviceID());
-
-            layout.addView(vg);
-            vids[i++] = vid;
-        }
-
-        fragTransaction.commit();
-        Flow flow = contentView.findViewById(R.id.alarmsFlow);
-        if(flow != null)flow.setReferencedIds(vids);
-    }*/
+        model.pausePingServices();
+    }
 
     public void populateAlarms(List<Alarm> alarms) {
         FragmentManager fragmentManager = getFragmentManager();
