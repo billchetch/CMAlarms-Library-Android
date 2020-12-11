@@ -10,9 +10,16 @@ import java.util.Map;
 
 public class AlarmsMessageSchema extends MessageSchema{
     public enum AlarmState{
+        DISABLED,
         OFF,
-        ON,
-        DISABLED
+        MINOR,
+        MODERATE,
+        SEVERE,
+        CRITICAL
+    }
+
+    static public boolean isAlarmStateOn(AlarmState state){
+        return state != AlarmState.OFF && state != AlarmState.DISABLED;
     }
 
     static public final String SERVICE_NAME = "BBAlarms";
@@ -30,8 +37,8 @@ public class AlarmsMessageSchema extends MessageSchema{
         super(message);
     }
 
-    public String getDeviceID(){
-        return message.getString("DeviceID");
+    public String getAlarmID(){
+        return message.getString("AlarmID");
     }
 
     public AlarmState getAlarmState(){
@@ -82,5 +89,9 @@ public class AlarmsMessageSchema extends MessageSchema{
 
     public boolean isBuzzerSilenced(){
         return message.getBoolean("BuzzerSilenced");
+    }
+
+    public boolean isBuzzerOn(){
+        return message.getBoolean("BuzzerOn");
     }
 }

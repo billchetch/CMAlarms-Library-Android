@@ -134,13 +134,18 @@ public class AlarmPanelFragment extends Fragment {
             });
 
             model.getAlertedAlarm().observe(getViewLifecycleOwner(), alarm -> {
-                Log.i("AlarmPanelFragment", "Alarm alert " + alarm.getDeviceID() + " state " + alarm.alarmState);
-                updateAlarmState(alarm.getDeviceID(), alarm.alarmState);
+                Log.i("AlarmPanelFragment", "Alarm alert " + alarm.getAlarmID() + " state " + alarm.alarmState);
+                updateAlarmState(alarm.getAlarmID(), alarm.alarmState);
             });
 
             model.getPilotOn().observe(getViewLifecycleOwner(), on -> {
                 Log.i("AlarmPanelFragment", "Pilot light on " + on);
                 updatePilotOn(on);
+            });
+
+            model.getBuzzerOn().observe(getViewLifecycleOwner(), on -> {
+                Log.i("AlarmPanelFragment", "Buzzer on " + on);
+                updateBuzzerOn(on);
             });
 
             model.getBuzzerSilenced().observe(getViewLifecycleOwner(), silenced -> {
@@ -184,15 +189,15 @@ public class AlarmPanelFragment extends Fragment {
 
         alarmsMap.clear();
         for(Alarm a : alarms) {
-            AlarmFragment af = (AlarmFragment) fragmentManager.findFragmentByTag(a.getDeviceID());
+            AlarmFragment af = (AlarmFragment) fragmentManager.findFragmentByTag(a.getAlarmID());
             if (af != null)fragTransaction.remove(af);
             af = new AlarmFragment();
             af.alarm = a;
             af.horizontal = horizontal;
-            fragTransaction.add(R.id.alarmsCtn, af, a.getDeviceID());
+            fragTransaction.add(R.id.alarmsCtn, af, a.getAlarmID());
 
             //we keep a record
-            alarmsMap.put(a.getDeviceID(), a);
+            alarmsMap.put(a.getAlarmID(), a);
         }
         fragTransaction.commit();
     }
@@ -203,16 +208,16 @@ public class AlarmPanelFragment extends Fragment {
         }
     }
 
-    public void updateAlarmState(String deviceID, AlarmsMessageSchema.AlarmState alarmState){
+    public void updateAlarmState(String alarmID, AlarmsMessageSchema.AlarmState alarmState){
         FragmentManager fragmentManager = getFragmentManager();
-        AlarmFragment af = (AlarmFragment)fragmentManager.findFragmentByTag(deviceID);
+        AlarmFragment af = (AlarmFragment)fragmentManager.findFragmentByTag(alarmID);
         if(af != null) {
             af.updateAlarmState(alarmState);
         } else {
-            Log.e("AlarmPanelFragment", "Cannot find fragment for alarm " + deviceID);
+            Log.e("AlarmPanelFragment", "Cannot find fragment for alarm " + alarmID);
         }
 
-        if(alarmState == AlarmsMessageSchema.AlarmState.ON){
+        if(AlarmsMessageSchema.isAlarmStateOn(alarmState)){
             HorizontalScrollView sv = contentView.findViewById(R.id.alarmsCtnScrollView);
             sv.smoothScrollTo(af.getView().getLeft(), 0);
         }
@@ -229,11 +234,11 @@ public class AlarmPanelFragment extends Fragment {
             switch(a.alarmState){
                 case DISABLED:
                     disabled++; break;
-                case ON:
-                    alarmMessages = (alarmMessages == null ? "" : alarmMessages + ", ") + a.getName() + ": " + a.alarmMessage;
-                    on++; break;
                 case OFF:
                     off++; break;
+                default:
+                    alarmMessages = (alarmMessages == null ? "" : alarmMessages + ", ") + a.getName() + ": " + a.alarmMessage;
+                    on++; break;
             }
         }
 
@@ -249,13 +254,13 @@ public class AlarmPanelFragment extends Fragment {
         }
     }
 
-    public void updatePilotOn(boolean isAlarmOn){
+    public void updatePilotOn(boolean isPilotOn){
         //set the buzzer bg
         ImageView pilot = contentView.findViewById(R.id.alarmsPilot);
         GradientDrawable d = (GradientDrawable)pilot.getDrawable();
         int onColour = ContextCompat.getColor(getContext(), R.color.errorRed);
         int offColour = ContextCompat.getColor(getContext(), R.color.mediumnDarkGrey);
-        if(isAlarmOn){
+        if(isPilotOn){
             if(animator == null) {
                 animator = Animation.flash(d, offColour, onColour, 1000, ValueAnimator.INFINITE);
             }
@@ -263,6 +268,14 @@ public class AlarmPanelFragment extends Fragment {
             if(animator != null)animator.cancel();
             animator = null;
             d.setColor(offColour);
+        }
+    }
+
+    public void updateBuzzerOn(boolean isBuzzerOn){
+        if(isBuzzerOn){
+            buzzerButton.setVisibility(View.VISIBLE);
+        } else {
+            buzzerButton.setVisibility(View.INVISIBLE);
         }
     }
 

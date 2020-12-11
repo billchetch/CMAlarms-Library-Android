@@ -8,8 +8,8 @@ public class Alarm extends DataObject {
     public transient AlarmsMessageSchema.AlarmState alarmState;
     public transient String alarmMessage;
 
-    public String getDeviceID(){
-        return getCasted("device_id");
+    public String getAlarmID(){
+        return getCasted("alarm_id");
     }
 
     public String getName(){

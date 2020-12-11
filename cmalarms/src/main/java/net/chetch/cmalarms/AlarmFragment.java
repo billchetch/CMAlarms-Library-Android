@@ -44,12 +44,18 @@ public class AlarmFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.DISABLED, ContextCompat.getColor(getContext(), R.color.mediumnDarkGrey));
-        indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.ON, ContextCompat.getColor(getContext(), R.color.errorRed));
-        indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.OFF, ContextCompat.getColor(getContext(), R.color.bluegreen2));
+        indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.DISABLED, ContextCompat.getColor(getContext(), R.color.ALARM_DISABLED));
+        indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.CRITICAL, ContextCompat.getColor(getContext(), R.color.ALARM_CRITICAL));
+        indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.SEVERE, ContextCompat.getColor(getContext(), R.color.ALARM_SEVERE));
+        indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.MODERATE, ContextCompat.getColor(getContext(), R.color.ALARM_MODERATE));
+        indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.MINOR, ContextCompat.getColor(getContext(), R.color.ALARM_MINOR));
+        indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.OFF, ContextCompat.getColor(getContext(), R.color.ALARM_OFF));
 
         lblColourMap.put(AlarmsMessageSchema.AlarmState.DISABLED, ContextCompat.getColor(getContext(), R.color.mediumnDarkGrey));
-        lblColourMap.put(AlarmsMessageSchema.AlarmState.ON, ContextCompat.getColor(getContext(), R.color.white));
+        lblColourMap.put(AlarmsMessageSchema.AlarmState.CRITICAL, ContextCompat.getColor(getContext(), R.color.white));
+        lblColourMap.put(AlarmsMessageSchema.AlarmState.SEVERE, ContextCompat.getColor(getContext(), R.color.white));
+        lblColourMap.put(AlarmsMessageSchema.AlarmState.MODERATE, ContextCompat.getColor(getContext(), R.color.white));
+        lblColourMap.put(AlarmsMessageSchema.AlarmState.MINOR, ContextCompat.getColor(getContext(), R.color.white));
         lblColourMap.put(AlarmsMessageSchema.AlarmState.OFF, ContextCompat.getColor(getContext(), R.color.mediumGrey));
     }
 
@@ -97,7 +103,7 @@ public class AlarmFragment extends Fragment {
             tv.setTextColor(lblColour);
 
             currentAlarmState = alarmState;
-            Log.i("AlarmFragment", "Updated state " + getTag());
+            Log.i("AlarmFragment", "Updated state of " + getTag() + " to " + alarmState);
         } catch (Exception e){
             Log.e("AlarmFragment", e.getMessage());
         }
@@ -110,13 +116,13 @@ public class AlarmFragment extends Fragment {
             MenuItem.OnMenuItemClickListener selectItem = (item) -> {
                 switch(item.getItemId()){
                     case MENU_ITEM_DISABLE:
-                        model.disableAlarm(alarm.getDeviceID());
+                        model.disableAlarm(alarm.getAlarmID());
                         return true;
                     case MENU_ITEM_ENABLE:
-                        model.enableAlarm(alarm.getDeviceID());
+                        model.enableAlarm(alarm.getAlarmID());
                         return true;
                     case MENU_ITEM_TEST:
-                        model.testAlarm(alarm.getDeviceID());
+                        model.testAlarm(alarm.getAlarmID());
                         return true;
                 }
                 return true;
@@ -127,12 +133,12 @@ public class AlarmFragment extends Fragment {
                 case DISABLED:
                     menu.add(0, MENU_ITEM_ENABLE, 0, "Enable alarm").setOnMenuItemClickListener(selectItem);
                     break;
-                case ON:
-                    menu.add(0, MENU_ITEM_DISABLE, 0, "Disable alarm").setOnMenuItemClickListener(selectItem);
-                    break;
                 case OFF:
                     menu.add(0, MENU_ITEM_DISABLE, 0, "Disable alarm").setOnMenuItemClickListener(selectItem);
                     menu.add(0, MENU_ITEM_TEST, 0, "Test alarm").setOnMenuItemClickListener(selectItem);
+                    break;
+                default:
+                    menu.add(0, MENU_ITEM_DISABLE, 0, "Disable alarm").setOnMenuItemClickListener(selectItem);
                     break;
             }
         } catch (Exception e){

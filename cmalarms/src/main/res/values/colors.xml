@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ALARM_OFF">#317e84</color>
+    <color name="ALARM_CRITICAL">#FF0000</color>
+    <color name="ALARM_SEVERE">#FF7777</color>
+    <color name="ALARM_MODERATE">#FFCCCC</color>
+    <color name="ALARM_MINOR">#7cdad2</color>
+    <color name="ALARM_DISABLED">#666666</color>
+</resources>

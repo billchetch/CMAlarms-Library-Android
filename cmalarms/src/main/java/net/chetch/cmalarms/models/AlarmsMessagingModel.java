@@ -24,6 +24,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
     MutableLiveData<List<Alarm>> liveDataAlarms = new MutableLiveData<>();
     MutableLiveData<Map<String, AlarmsMessageSchema.AlarmState>> liveDataAlarmStates = new MutableLiveData<>();
     MutableLiveData<Boolean> liveDataPilotOn = new MutableLiveData<>();
+    MutableLiveData<Boolean> liveDataBuzzerOn = new MutableLiveData<>();
     MutableLiveData<Boolean> liveDataBuzzerSilenced = new MutableLiveData<>();
 
     public AlertFilter onAlarmAlert = new AlertFilter(AlarmsMessageSchema.SERVICE_NAME){
@@ -31,16 +32,17 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         protected void onMatched(Message message) {
             Log.i("AMM", "On Alarm Alert");
             AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
-            String deviceID = schema.getDeviceID();
+            String alarmID = schema.getAlarmID();
             AlarmsMessageSchema.AlarmState astate = schema.getAlarmState();
             String amessage = schema.getAlarmMessage();
-            if(alarmsMap.containsKey(deviceID)) {
-                Alarm alarm = alarmsMap.get(deviceID);
+            if(alarmsMap.containsKey(alarmID)) {
+                Alarm alarm = alarmsMap.get(alarmID);
                 alarm.alarmState = astate;
                 alarm.alarmMessage = amessage;
                 liveDataAlertedAlarm.postValue(alarm);
             }
             liveDataPilotOn.postValue(Boolean.valueOf(schema.isPilotOn()));
+            liveDataBuzzerOn.postValue(Boolean.valueOf(schema.isBuzzerOn()));
             liveDataBuzzerSilenced.postValue(Boolean.valueOf(schema.isBuzzerSilenced()));
         }
     };
@@ -55,7 +57,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
             //keep a map record
             alarmsMap.clear();
             for(Alarm a : l){
-                alarmsMap.put(a.getDeviceID(), a);
+                alarmsMap.put(a.getAlarmID(), a);
             }
             //update liv data
             liveDataAlarms.postValue(l);
@@ -89,6 +91,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
 
             liveDataAlarmStates.postValue(l);
             liveDataPilotOn.postValue(Boolean.valueOf(schema.isPilotOn()));
+            liveDataBuzzerOn.postValue(Boolean.valueOf(schema.isBuzzerOn()));
             liveDataBuzzerSilenced.postValue(Boolean.valueOf(schema.isBuzzerSilenced()));
 
             buzzerID = schema.getBuzzerID();
@@ -117,7 +120,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
             boolean matches = super.matches(message);
             if(matches){
                 AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
-                matches = schema.getDeviceID() != null && schema.getDeviceID().equals(buzzerID);
+                matches = schema.getAlarmID() != null && schema.getAlarmID().equals(buzzerID);
             }
             return matches;
         }
@@ -176,6 +179,8 @@ public class AlarmsMessagingModel extends MessagingViewModel {
     public LiveData<Boolean> getPilotOn(){
         return liveDataPilotOn;
     }
+
+    public LiveData<Boolean> getBuzzerOn(){ return liveDataBuzzerOn; }
 
     public LiveData<Boolean> getBuzzerSilenced(){
         return liveDataBuzzerSilenced;
