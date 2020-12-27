@@ -1,5 +1,9 @@
 include ':messaging'
+project(':messaging').projectDir=new File('/Users/billthorgerson/Documents/AndroidStudioProjects/ChetchMessagingTest/messaging')
 include ':webservices'
-include ':appresources'
+project(':webservices').projectDir=new File('/Users/billthorgerson/Documents/AndroidStudioProjects/WebservicesTest/webservices')
 include ':utilities'
+project(':utilities').projectDir=new File('/Users/billthorgerson/Documents/AndroidStudioProjects/Utils/utilities')
+include ':appresources'
+project(':appresources').projectDir=new File('/Users/billthorgerson/Documents/AndroidStudioProjects/AppResourcesLib/appresources')
 include ':app', ':cmalarms'
