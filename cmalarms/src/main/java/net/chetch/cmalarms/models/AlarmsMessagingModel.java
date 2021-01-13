@@ -18,6 +18,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 public class AlarmsMessagingModel extends MessagingViewModel {
+    static final int ALARM_TEST_DURATION = 10;
+    static final AlarmsMessageSchema.AlarmState ALARM_TEST_STATE = AlarmsMessageSchema.AlarmState.CRITICAL;
+
     Map<String, Alarm> alarmsMap = new HashMap<>();
     String buzzerID;
     MutableLiveData<Alarm> liveDataAlertedAlarm = new MutableLiveData<>();
@@ -191,22 +194,22 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_ALARM_STATUS);
     }
 
-    public void disableAlarm(String deviceID){
-        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_DISABLE_ALARM, deviceID);
+    public void disableAlarm(String alarmID){
+        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_DISABLE_ALARM, alarmID);
     }
 
-    public void enableAlarm(String deviceID){
-        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_ENABLE_ALARM, deviceID);
+    public void enableAlarm(String alarmID){
+        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_ENABLE_ALARM, alarmID);
     }
 
-    public void testAlarm(String deviceID){
-        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_TEST_ALARM, deviceID);
+    public void testAlarm(String alarmID){
+        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_TEST_ALARM, alarmID, ALARM_TEST_STATE.ordinal(), ALARM_TEST_DURATION);
     }
 
     public boolean isPilotOn(){
         return liveDataPilotOn.getValue();
     }
-
+    public boolean isBuzzerOn() { return liveDataBuzzerOn.getValue(); }
     public boolean isBuzzerSilenced(){
         return liveDataBuzzerSilenced.getValue();
     }

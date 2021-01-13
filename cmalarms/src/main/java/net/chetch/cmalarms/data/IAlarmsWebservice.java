@@ -14,4 +14,7 @@ public interface IAlarmsWebservice {
 
     @GET("about")
     Call<AboutService> getAbout();
+    
+    @GET("log")
+    Call<AlarmsLog> getLog(@Query("from") String fromDate, @Query("to") String toDate);
 }

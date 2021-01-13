@@ -5,6 +5,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.util.Log;
 
 import net.chetch.cmalarms.AlarmPanelFragment;
 import net.chetch.cmalarms.models.AlarmsMessagingModel;
+import net.chetch.cmalarms.models.AlarmsWebserviceModel;
 import net.chetch.webservices.WebserviceViewModel;
 import net.chetch.webservices.network.NetworkRepository;
 
@@ -20,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     static boolean loaded = false;
 
     AlarmsMessagingModel model;
+    AlarmsWebserviceModel wsModel;
 
     Observer dataLoadProgress  = obj -> {
         WebserviceViewModel.LoadProgress progress = (WebserviceViewModel.LoadProgress) obj;
@@ -57,6 +60,12 @@ public class MainActivity extends AppCompatActivity {
             Log.e("Main", throwable.getMessage());
         });
         model.loadData(dataLoadProgress);
+
+        wsModel = new ViewModelProvider(this).get(AlarmsWebserviceModel.class);
+        wsModel.getError().observe(this, throwable ->{
+            Log.e("Main", throwable.getMessage());
+        });
+        wsModel.loadData(dataLoadProgress);
 
     }
 

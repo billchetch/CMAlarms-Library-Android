@@ -142,7 +142,7 @@ public class AlarmFragment extends Fragment {
                     break;
             }
         } catch (Exception e){
-            Log.e("AlarmPanel", "onCreatContextMenu: " + e.getMessage());
+            Log.e("AlarmPanel", "onCreateContextMenu: " + e.getMessage());
         }
     }
 }
