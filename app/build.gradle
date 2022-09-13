@@ -36,5 +36,6 @@ dependencies {
     implementation project(':utilities')
     implementation project(':messaging')
     implementation project(':webservices')
+    implementation project(':appframework')
     implementation project(':appresources')
 }

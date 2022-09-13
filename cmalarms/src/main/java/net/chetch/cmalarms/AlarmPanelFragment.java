@@ -87,7 +87,7 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
         if(model == null) {
             model = new ViewModelProvider(getActivity()).get(AlarmsMessagingModel.class);
 
-            model.getMessagingService().observe(getViewLifecycleOwner(), ms -> {
+            model.observeMessagingServices(getViewLifecycleOwner(), ms -> {
                 //we assume this is always the alarms messaging service
                 View mainLayout = contentView.findViewById(R.id.alarmsMainLayout);
                 View progressCtn = contentView.findViewById(R.id.alarmsProgressCtn);

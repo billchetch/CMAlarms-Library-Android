@@ -12,6 +12,7 @@
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/cmalarms" />
+            <option value="$PROJECT_DIR$/../AppFrameworkLib/appframework" />
             <option value="$PROJECT_DIR$/../AppResourcesLib/appresources" />
             <option value="$PROJECT_DIR$/../ChetchMessagingTest/messaging" />
             <option value="$PROJECT_DIR$/../Utils/utilities" />

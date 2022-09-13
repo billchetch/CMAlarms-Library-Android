@@ -15,4 +15,9 @@ public class Alarm extends DataObject {
     public String getName(){
         return getCasted("alarm_name");
     }
+
+    public AlarmsMessageSchema.AlarmState getAlarmState(){
+        String s =  getCasted("alarm_state");
+        return AlarmsMessageSchema.AlarmState.valueOf(s);
+    }
 }

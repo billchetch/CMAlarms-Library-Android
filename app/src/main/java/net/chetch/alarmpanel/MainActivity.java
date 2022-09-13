@@ -10,28 +10,61 @@ import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
+import net.chetch.appframework.GenericActivity;
 import net.chetch.cmalarms.AlarmPanelFragment;
+import net.chetch.appframework.GenericActivity;
+import net.chetch.cmalarms.IAlarmPanelListener;
 import net.chetch.cmalarms.models.AlarmsMessagingModel;
 import net.chetch.cmalarms.models.AlarmsWebserviceModel;
+import net.chetch.messaging.ClientConnection;
+import net.chetch.webservices.ConnectManager;
 import net.chetch.webservices.WebserviceViewModel;
 import net.chetch.webservices.network.NetworkRepository;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends GenericActivity implements IAlarmPanelListener {
 
     static boolean loaded = false;
 
     AlarmsMessagingModel model;
     AlarmsWebserviceModel wsModel;
 
-    Observer dataLoadProgress  = obj -> {
-        WebserviceViewModel.LoadProgress progress = (WebserviceViewModel.LoadProgress) obj;
-        try {
-            String state = progress.startedLoading ? "Loading" : "Loaded";
-            String progressInfo = state + (progress.info == null ? "" : " " + progress.info.toLowerCase());
-            Log.i("Main", "in load data progress");
-        } catch (Exception e){
-            Log.e("Main", "load prigress: " + e.getMessage());
+    AlarmPanelFragment alarmPanelFragment;
+
+    Observer connectProgress  = obj -> {
+        if(obj instanceof WebserviceViewModel.LoadProgress) {
+            WebserviceViewModel.LoadProgress progress = (WebserviceViewModel.LoadProgress) obj;
+            try {
+                String state = progress.startedLoading ? "Loading" : "Loaded";
+                String progressInfo = state + (progress.info == null ? "" : " " + progress.info.toLowerCase());
+                Log.i("Main", "in load data progress ..." + progressInfo);
+
+            } catch (Exception e) {
+                Log.e("Main", "load progress: " + e.getMessage());
+            }
+        } else if(obj instanceof ClientConnection){
+
+        } else if(obj instanceof ConnectManager) {
+            ConnectManager cm = (ConnectManager) obj;
+            switch(cm.getState()){
+                case CONNECT_REQUEST:
+                    if(cm.fromError()){
+                        setProgressInfo("There was an error ... retrying...");
+                    } else {
+                        setProgressInfo("Connecting...");
+                    }
+                    break;
+
+                case RECONNECT_REQUEST:
+                    setProgressInfo("Disconnected!... Attempting to reconnect...");
+                    break;
+
+                case CONNECTED:
+                    Log.i("Main", "All connections made");
+                    break;
+            }
+
         }
     };
 
@@ -40,33 +73,51 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        try {
-            //String apiBaseURL = "http://192.168.43.123:8001/api/";
-            //String apiBaseURL = "http://192.168.0.123:8001/api/";
-            //String apiBaseURL = "http://192.168.0.150:8001/api/";
-            //String apiBaseURL = "http://192.168.1.100:8001/api/";
-            //String apiBaseURL = "http://192.168.0.106:8001/api/";
-            String apiBaseURL = "http://192.168.0.52:8001/api/";
-            NetworkRepository.getInstance().setAPIBaseURL(apiBaseURL);
-        } catch (Exception e) {
-            Log.e("MVM", e.getMessage());
-            return;
-        }
+        //includeActionBar(SettingsActivity.class);
 
-        //now load up
+        //Get models
         Log.i("Main", "Calling load data");
         model = ViewModelProviders.of(this).get(AlarmsMessagingModel.class);
         model.getError().observe(this, throwable -> {
-            Log.e("Main", throwable.getMessage());
+            handleError(throwable, model);
         });
-        model.loadData(dataLoadProgress);
 
         wsModel = new ViewModelProvider(this).get(AlarmsWebserviceModel.class);
         wsModel.getError().observe(this, throwable ->{
-            Log.e("Main", throwable.getMessage());
+            handleError(throwable, wsModel);
         });
-        wsModel.loadData(dataLoadProgress);
+
+
+        //Components
+        alarmPanelFragment = (AlarmPanelFragment)getSupportFragmentManager().findFragmentById(R.id.alarmPanelFragment);
+        alarmPanelFragment.listener = this;
+
+        ConnectManager connectManager = new ConnectManager();
+        try {
+            model.setClientName("ACMCAPAlarms");
+
+            connectManager.addModel(model);
+            connectManager.addModel(wsModel);
+
+            connectManager.requestConnect(connectProgress);
+        } catch (Exception e){
+            showError(e);
+        }
 
     }
 
+    private void handleError(Throwable t, Object source){
+        showError(t);
+        Log.e("MAIN", t.getClass() + ": " + t.getMessage());
+    }
+
+    @Override
+    public void onViewAlarmsLog(AlarmsWebserviceModel model) {
+
+    }
+
+    @Override
+    public void onSilenceAlarmBuzzer(int duration) {
+
+    }
 }
