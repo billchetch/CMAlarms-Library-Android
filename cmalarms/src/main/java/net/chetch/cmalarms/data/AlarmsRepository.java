@@ -28,10 +28,10 @@ public class AlarmsRepository extends WebserviceRepository<IAlarmsWebservice> {
         return Utils.formatDate(cal, DATE_FORMAT_FOR_REQUESTS, TimeZone.getTimeZone("UTC"));
     }
 
-    public DataStore<AlarmsLog> getLog(Calendar fromDate, Calendar toDate){
+    public DataStore<AlarmsLog> getLog(Calendar fromDate, Calendar toDate, String alarmID){
         final DataStore<AlarmsLog> entries = new DataStore<>();
 
-        service.getLog(date4request(fromDate), date4request(toDate)).enqueue(createCallback(entries));
+        service.getLog(date4request(fromDate), date4request(toDate), alarmID).enqueue(createCallback(entries));
 
         return entries;
     }

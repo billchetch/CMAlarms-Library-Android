@@ -29,12 +29,14 @@ public class AlarmFragment extends Fragment {
     static final int MENU_ITEM_DISABLE = 1;
     static final int MENU_ITEM_ENABLE = 2;
     static final int MENU_ITEM_TEST = 3;
+    static final int MENU_ITEM_VIEW_LOG = 4;
 
     Map<AlarmsMessageSchema.AlarmState, Integer> indidcatorColourMap = new HashMap<>();
     Map<AlarmsMessageSchema.AlarmState, Integer> lblColourMap = new HashMap<>();
 
     AlarmsMessagingModel model;
 
+    public IAlarmPanelListener listener;
     public Alarm alarm;
     public boolean horizontal = true;
     View contentView;
@@ -67,7 +69,7 @@ public class AlarmFragment extends Fragment {
         if(horizontal) {
             contentView = inflater.inflate(R.layout.alarm_horizontal, container, false);
         } else {
-            contentView = inflater.inflate(R.layout.alarm_vertical, container, false);
+            contentView = inflater.inflate(R.layout.alarm_horizontal_large, container, false);
         }
 
         if(alarm != null){
@@ -123,6 +125,9 @@ public class AlarmFragment extends Fragment {
                         return true;
                     case MENU_ITEM_TEST:
                         model.testAlarm(alarm.getAlarmID());
+                        return true;
+                    case MENU_ITEM_VIEW_LOG:
+                        if(listener != null)listener.onViewAlarmsLog(alarm);
                         return true;
                 }
                 return true;

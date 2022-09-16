@@ -9,13 +9,14 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.helper.widget.Flow;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -25,27 +26,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import net.chetch.cmalarms.data.Alarm;
-import net.chetch.cmalarms.data.IAlarmsWebservice;
 import net.chetch.cmalarms.models.AlarmsMessageSchema;
 import net.chetch.cmalarms.models.AlarmsMessagingModel;
 import net.chetch.cmalarms.models.AlarmsWebserviceModel;
 import net.chetch.messaging.MessagingViewModel;
 import net.chetch.utilities.Animation;
-import net.chetch.utilities.DatePeriod;
+import net.chetch.utilities.SLog;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemClickListener{
     static final int MENU_ITEM_SILENCE_1_MIN = 1;
     static final int MENU_ITEM_SILENCE_10_MIN = 10;
     static final int MENU_ITEM_SILENCE_30_MIN = 30;
     static final int MENU_ITEM_VIEW_LOG = 100;
+    static final int MENU_ITEM_TEST_BUZZER = 200;
+    static final int MENU_ITEM_TEST_PILOT = 201;
 
     public boolean horizontal = true;
     public IAlarmPanelListener listener;
@@ -66,7 +69,7 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
         if(horizontal) {
             contentView = inflater.inflate(R.layout.alarm_panel_horizontal_scroll, container, false);
         } else {
-            contentView = inflater.inflate(R.layout.alarm_panel_vertical, container, false);
+            contentView = inflater.inflate(R.layout.alarm_panel_vertical_scroll, container, false);
         }
 
         buzzerButton = contentView.findViewById(R.id.alarmsBuzzerButton);
@@ -77,7 +80,7 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
         //progressCtn.setVisibility(View.INVISIBLE);
         mainLayout.setVisibility(View.INVISIBLE);
 
-        Log.i("AlarmPanelFragment", "Created view");
+        SLog.i("AlarmPanelFragment", "Created " + (horizontal ? "horizontal" : "vertical") + " view");
         return contentView;
     }
 
@@ -93,7 +96,7 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
                 View progressCtn = contentView.findViewById(R.id.alarmsProgressCtn);
                 switch(ms.state){
                     case RESPONDING:
-                        progressCtn.setVisibility(View.INVISIBLE);
+                        if(progressCtn != null)progressCtn.setVisibility(View.INVISIBLE);
                         mainLayout.setVisibility(View.VISIBLE);
                         Log.i("AlarmPanelFragment", "Messaging service is RESPONDING");
                         break;
@@ -102,7 +105,7 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
                     case NOT_RESPONDING:
                     case NOT_FOUND:
                         mainLayout.setVisibility(View.INVISIBLE);
-                        progressCtn.setVisibility(View.VISIBLE);
+                        if(progressCtn != null)progressCtn.setVisibility(View.VISIBLE);
 
                         TextView tv = contentView.findViewById(R.id.alarmsServiceState);
                         tv.setVisibility(View.VISIBLE);
@@ -154,6 +157,11 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
                 Log.i("AlarmPanelFragment", "Buzzer silenced " + silenced);
                 updateBuzzerSilenced(silenced);
             });
+
+            model.getIsTesting().observe(getViewLifecycleOwner(), testing -> {
+                Log.i("AlarmPanelFragment", testing ? "Testing" : "Not Testing");
+
+            });
         }
 
         if(wsModel == null){
@@ -185,6 +193,12 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
                 menu.add(0, MENU_ITEM_SILENCE_1_MIN, 0, "Silence for 1 minute").setOnMenuItemClickListener(this);
                 menu.add(0, MENU_ITEM_SILENCE_10_MIN, 0, "Silence for 10 minutes").setOnMenuItemClickListener(this);
                 menu.add(0, MENU_ITEM_SILENCE_30_MIN, 0, "Silence for 30 minutes alarm").setOnMenuItemClickListener(this);
+            } else if(model.isPilotOn()){
+                //add nothing at the moment
+            } else {
+                //buzzer and pilot is off
+                menu.add(0, MENU_ITEM_TEST_BUZZER, 0, "Test Buzzer").setOnMenuItemClickListener(this);
+                menu.add(0, MENU_ITEM_TEST_PILOT, 0, "Test Pilot").setOnMenuItemClickListener(this);
             }
             menu.add(0, MENU_ITEM_VIEW_LOG, 0, "View Log").setOnMenuItemClickListener(this);
             contextMenu = menu;
@@ -208,20 +222,24 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
     public void populateAlarms(List<Alarm> alarms) {
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction fragTransaction = fragmentManager.beginTransaction();
+        List<AlarmFragment> afl = new ArrayList<>();
 
         alarmsMap.clear();
         for(Alarm a : alarms) {
             AlarmFragment af = (AlarmFragment) fragmentManager.findFragmentByTag(a.getAlarmID());
             if (af != null)fragTransaction.remove(af);
             af = new AlarmFragment();
+            af.listener = listener;
             af.alarm = a;
-            af.horizontal = horizontal;
+            af.horizontal = horizontal; //TODO: make this a setting if needed;
             fragTransaction.add(R.id.alarmsCtn, af, a.getAlarmID());
 
             //we keep a record
             alarmsMap.put(a.getAlarmID(), a);
+            afl.add(af);
         }
         fragTransaction.commit();
+
     }
 
     public void updateAlarmStates(Map<String, AlarmsMessageSchema.AlarmState> alarmStates){
@@ -234,14 +252,23 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
         FragmentManager fragmentManager = getFragmentManager();
         AlarmFragment af = (AlarmFragment)fragmentManager.findFragmentByTag(alarmID);
         if(af != null) {
+            AlarmsMessageSchema.AlarmState oldState = af.alarm.hasAlarmState() ? af.alarm.getAlarmState() : alarmState;
             af.updateAlarmState(alarmState);
+            if(listener != null && oldState != alarmState){
+                listener.onAlarmStateChange(af.alarm, alarmState, oldState);
+            }
         } else {
             Log.e("AlarmPanelFragment", "Cannot find fragment for alarm " + alarmID);
         }
 
         if(AlarmsMessageSchema.isAlarmStateOn(alarmState)){
-            HorizontalScrollView sv = contentView.findViewById(R.id.alarmsCtnScrollView);
-            sv.smoothScrollTo(af.getView().getLeft(), 0);
+            if(horizontal) {
+                HorizontalScrollView sv = contentView.findViewById(R.id.alarmsCtnScrollView);
+                sv.smoothScrollTo(af.getView().getLeft(), 0);
+            } else {
+                ScrollView sv = contentView.findViewById(R.id.alarmsCtnScrollView);
+                sv.smoothScrollTo(0, af.getView().getTop());
+            }
         }
         //update panel info
         updateAlarmPanelInfo();
@@ -327,14 +354,22 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
             case MENU_ITEM_SILENCE_1_MIN:
             case MENU_ITEM_SILENCE_10_MIN:
             case MENU_ITEM_SILENCE_30_MIN:
-                if(model.isPilotOn() && ! model.isBuzzerSilenced()) {
+                if(model.isPilotOn() && !model.isBuzzerSilenced()) {
                     int duration = 60 * menuItem.getItemId();
                     model.silenceBuzzer(duration);
-                    if(listener != null)listener.onSilenceAlarmBuzzer(duration);
                 }
                 break;
+
+            case MENU_ITEM_TEST_BUZZER:
+                model.testBuzzer();
+                break;
+
+            case MENU_ITEM_TEST_PILOT:
+                model.testPilot();
+                break;
+
             case MENU_ITEM_VIEW_LOG:
-                if(listener != null)listener.onViewAlarmsLog(wsModel);
+                if(listener != null)listener.onViewAlarmsLog(null);
                 break;
         }
         return false;

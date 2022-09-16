@@ -16,6 +16,8 @@ import net.chetch.appframework.GenericActivity;
 import net.chetch.cmalarms.AlarmPanelFragment;
 import net.chetch.appframework.GenericActivity;
 import net.chetch.cmalarms.IAlarmPanelListener;
+import net.chetch.cmalarms.data.Alarm;
+import net.chetch.cmalarms.models.AlarmsMessageSchema;
 import net.chetch.cmalarms.models.AlarmsMessagingModel;
 import net.chetch.cmalarms.models.AlarmsWebserviceModel;
 import net.chetch.messaging.ClientConnection;
@@ -38,6 +40,9 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
             try {
                 String state = progress.startedLoading ? "Loading" : "Loaded";
                 String progressInfo = state + (progress.info == null ? "" : " " + progress.info.toLowerCase());
+                if(progress.dataLoaded != null){
+                    progressInfo += " - " + progress.dataLoaded.getClass().toString();
+                }
                 Log.i("Main", "in load data progress ..." + progressInfo);
 
             } catch (Exception e) {
@@ -61,6 +66,7 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
                     break;
 
                 case CONNECTED:
+                    hideProgress();
                     Log.i("Main", "All connections made");
                     break;
             }
@@ -112,12 +118,19 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
     }
 
     @Override
-    public void onViewAlarmsLog(AlarmsWebserviceModel model) {
+    public void onAlarmStateChange(Alarm alarm, AlarmsMessageSchema.AlarmState newState, AlarmsMessageSchema.AlarmState oldState) {
 
+    }
+
+    @Override
+    public void onViewAlarmsLog(Alarm alarm) {
+        //wsModel.getLog();
     }
 
     @Override
     public void onSilenceAlarmBuzzer(int duration) {
 
     }
+
+
 }

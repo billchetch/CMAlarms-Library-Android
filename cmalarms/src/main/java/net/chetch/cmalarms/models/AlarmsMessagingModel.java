@@ -29,6 +29,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
     MutableLiveData<Boolean> liveDataPilotOn = new MutableLiveData<>();
     MutableLiveData<Boolean> liveDataBuzzerOn = new MutableLiveData<>();
     MutableLiveData<Boolean> liveDataBuzzerSilenced = new MutableLiveData<>();
+    MutableLiveData<Boolean> liveDataTesting = new MutableLiveData<>();
 
     public AlertFilter onAlarmAlert = new AlertFilter(AlarmsMessageSchema.SERVICE_NAME){
         @Override
@@ -47,6 +48,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
             liveDataPilotOn.postValue(Boolean.valueOf(schema.isPilotOn()));
             liveDataBuzzerOn.postValue(Boolean.valueOf(schema.isBuzzerOn()));
             liveDataBuzzerSilenced.postValue(Boolean.valueOf(schema.isBuzzerSilenced()));
+            liveDataTesting.postValue(Boolean.valueOf(schema.isTesting()));
         }
     };
 
@@ -78,7 +80,8 @@ public class AlarmsMessagingModel extends MessagingViewModel {
 
             if(!message.hasValue("Pilot")){
                 String msg = "Alarm panel offline (no pilot light detected)";
-                setError(msg);
+                //TODO: reinstate setError
+                //setError(msg);
                 return;
             }
 
@@ -96,6 +99,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
             liveDataPilotOn.postValue(Boolean.valueOf(schema.isPilotOn()));
             liveDataBuzzerOn.postValue(Boolean.valueOf(schema.isBuzzerOn()));
             liveDataBuzzerSilenced.postValue(Boolean.valueOf(schema.isBuzzerSilenced()));
+            liveDataTesting.postValue(Boolean.valueOf(schema.isTesting()));
 
             buzzerID = schema.getBuzzerID();
         }
@@ -117,13 +121,13 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         }
     };
 
-    public NotificationFilter onBuzzerNotification = new NotificationFilter(AlarmsMessageSchema.SERVICE_NAME) {
+    public NotificationFilter onTestStatusNotification = new NotificationFilter(AlarmsMessageSchema.SERVICE_NAME) {
         @Override
         protected boolean matches(Message message) {
             boolean matches = super.matches(message);
             if(matches){
                 AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
-                matches = schema.getAlarmID() != null && schema.getAlarmID().equals(buzzerID);
+                matches = message.hasValue("AlarmTest") && message.hasValue("Testing");
             }
             return matches;
         }
@@ -131,8 +135,11 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         @Override
         protected void onMatched(Message message) {
             AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
+            liveDataPilotOn.postValue(Boolean.valueOf(schema.isPilotOn()));
+            liveDataBuzzerOn.postValue(Boolean.valueOf(schema.isBuzzerOn()));
             liveDataBuzzerSilenced.postValue(Boolean.valueOf(schema.isBuzzerSilenced()));
-            Log.i("AMM", "Notification from buzzer");
+            liveDataTesting.postValue((Boolean.valueOf(schema.isTesting())));
+            Log.i("AMM", "Notification from testing");
         }
     };
 
@@ -144,7 +151,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
             addMessageFilter(onAlarmStatus);
             addMessageFilter(onBuzzerSilenced);
             addMessageFilter(onBuzzerUnsilenced);
-            addMessageFilter(onBuzzerNotification);
+            addMessageFilter(onTestStatusNotification);
         } catch (Exception e){
             Log.e("AMM", e.getMessage());
         }
@@ -189,6 +196,8 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         return liveDataBuzzerSilenced;
     }
 
+    public LiveData<Boolean> getIsTesting() { return liveDataTesting; }
+
     //make calls to the service
     public void requestAlarmStates(){
         getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_ALARM_STATUS);
@@ -219,5 +228,13 @@ public class AlarmsMessagingModel extends MessagingViewModel {
 
     public void unsilenceBuzzer(){
         getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_UNSILENCE_BUZZER);
+    }
+
+    public void testBuzzer(){
+        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_TEST_BUZZER);
+    }
+
+    public void testPilot(){
+        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_TEST_PILOT);
     }
 }

@@ -31,6 +31,8 @@ public class AlarmsMessageSchema extends MessageSchema{
     static public final String COMMAND_DISABLE_ALARM = "disable-alarm";
     static public final String COMMAND_ENABLE_ALARM = "enable-alarm";
     static public final String COMMAND_TEST_ALARM = "test-alarm";
+    static public final String COMMAND_TEST_BUZZER = "test-buzzer";
+    static public final String COMMAND_TEST_PILOT = "test-pilot";
 
 
     public AlarmsMessageSchema(Message message){
@@ -94,4 +96,6 @@ public class AlarmsMessageSchema extends MessageSchema{
     public boolean isBuzzerOn(){
         return message.getBoolean("BuzzerOn");
     }
+
+    public boolean isTesting(){ return message.getBoolean("Testing"); }
 }
