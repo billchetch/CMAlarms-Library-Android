@@ -6,5 +6,5 @@
         android:singleLine="false"
         android:title="Network API Base URL"
         android:summary="Set the Network API base URL here"
-        android:defaultValue="http://192.168.0.52:8001/api/"/>
+        android:defaultValue="http://192.168.2.188:8001/api/"/>
 </PreferenceScreen>

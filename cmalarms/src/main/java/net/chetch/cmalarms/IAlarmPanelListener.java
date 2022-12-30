@@ -9,4 +9,5 @@ public interface IAlarmPanelListener {
     public void onAlarmStateChange(Alarm alarm, AlarmsMessageSchema.AlarmState newState, AlarmsMessageSchema.AlarmState oldState);
     public void onViewAlarmsLog(Alarm alarm);
     public void onSilenceAlarmBuzzer(int duration);
+    public void onDisableAlarm(Alarm alarm);
 }

@@ -3,10 +3,16 @@ package net.chetch.cmalarms.models;
 import net.chetch.cmalarms.data.Alarm;
 import net.chetch.messaging.Message;
 import net.chetch.messaging.MessageSchema;
+import net.chetch.utilities.Utils;
+import net.chetch.webservices.Webservice;
+import net.chetch.webservices.WebserviceRepository;
+import net.chetch.webservices.WebserviceViewModel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Calendar;
 
 public class AlarmsMessageSchema extends MessageSchema{
     public enum AlarmState{
@@ -50,6 +56,10 @@ public class AlarmsMessageSchema extends MessageSchema{
         return message.hasValue("AlarmMessage") ? message.getString("AlarmMessage") : null;
     }
 
+    public Calendar getAlarmLastRaised(){
+        return message.hasValue("AlarmLastRaised") ? message.getCalendar("AlarmLastRaised") : null;
+    }
+
     public Map<String, AlarmState> getAlarmStates(){
         return message.getMap("AlarmStates", AlarmState.class);
     }
@@ -59,6 +69,8 @@ public class AlarmsMessageSchema extends MessageSchema{
         if(alarms == null)return null;
 
         List<Alarm> alarms2return = new ArrayList<>();
+        List<String> dateFields = Arrays.asList("last_raised", "last_lowered", "last_disabled");
+
         for(String s : alarms){
 
             //Split each string in to key/value strings, then split each key/value string in to key string and value string
@@ -68,7 +80,14 @@ public class AlarmsMessageSchema extends MessageSchema{
                 String[] kva = kv.split("=");
                 if(kva.length > 0){
                     String key = kva[0].trim();
-                    String val = kva.length == 2 ? kva[1].trim() : null;
+                    Object val = kva.length == 2 ? kva[1].trim() : null;
+                    if(val != null && !val.toString().isEmpty() && dateFields.contains(key)){
+                        try {
+                            val = Utils.parseDate(val.toString(), Webservice.DEFAULT_DATE_FORMAT);
+                        } catch (Exception e){
+                            val = "";
+                        }
+                    }
                     a.setValue(key, val);
                 }
             }

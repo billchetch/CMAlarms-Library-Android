@@ -108,17 +108,18 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
                         if(progressCtn != null)progressCtn.setVisibility(View.VISIBLE);
 
                         TextView tv = contentView.findViewById(R.id.alarmsServiceState);
-                        tv.setVisibility(View.VISIBLE);
-                        String msg = "";
-                        if(ms.state == MessagingViewModel.MessagingServiceState.NOT_FOUND) {
-                            msg = "Cannot configure service as configuration details not found (possible webserver issue)";
-                        } else if(ms.state == MessagingViewModel.MessagingServiceState.NOT_RESPONDING){
-                            msg = "Alarms service is not responding";
-                        } else {
-                            msg = "Alarms service is not connected.  Check service has started.";
+                        if(tv != null) {
+                            tv.setVisibility(View.VISIBLE);
+                            String msg = "";
+                            if (ms.state == MessagingViewModel.MessagingServiceState.NOT_FOUND) {
+                                msg = "Cannot configure service as configuration details not found (possible webserver issue)";
+                            } else if (ms.state == MessagingViewModel.MessagingServiceState.NOT_RESPONDING) {
+                                msg = "Alarms service is not responding";
+                            } else {
+                                msg = "Alarms service is not connected.  Check service has started.";
+                            }
+                            tv.setText(msg);
                         }
-                        tv.setText(msg);
-
                         Log.i("AlarmPanelFragment", "Messaging service is " + ms.state);
                         break;
 
@@ -139,8 +140,8 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
             });
 
             model.getAlertedAlarm().observe(getViewLifecycleOwner(), alarm -> {
-                Log.i("AlarmPanelFragment", "Alarm alert " + alarm.getAlarmID() + " state " + alarm.alarmState);
-                updateAlarmState(alarm.getAlarmID(), alarm.alarmState);
+                Log.i("AlarmPanelFragment", "Alarm alert " + alarm.getAlarmID() + " state " + alarm.getAlarmState());
+                updateAlarmState(alarm);
             });
 
             model.getPilotOn().observe(getViewLifecycleOwner(), on -> {
@@ -244,24 +245,26 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
 
     public void updateAlarmStates(Map<String, AlarmsMessageSchema.AlarmState> alarmStates){
         for(Map.Entry<String, AlarmsMessageSchema.AlarmState> entry : alarmStates.entrySet()){
-            updateAlarmState(entry.getKey(), entry.getValue());
+            Alarm alarm = alarmsMap.get(entry.getKey());
+            updateAlarmState(alarm);
         }
     }
 
-    public void updateAlarmState(String alarmID, AlarmsMessageSchema.AlarmState alarmState){
+    public void updateAlarmState(Alarm alarm){
         FragmentManager fragmentManager = getFragmentManager();
-        AlarmFragment af = (AlarmFragment)fragmentManager.findFragmentByTag(alarmID);
+        AlarmFragment af = (AlarmFragment)fragmentManager.findFragmentByTag(alarm.getAlarmID());
+        AlarmsMessageSchema.AlarmState newState = alarm.getAlarmState();
         if(af != null) {
-            AlarmsMessageSchema.AlarmState oldState = af.alarm.hasAlarmState() ? af.alarm.getAlarmState() : alarmState;
-            af.updateAlarmState(alarmState);
-            if(listener != null && oldState != alarmState){
-                listener.onAlarmStateChange(af.alarm, alarmState, oldState);
+            AlarmsMessageSchema.AlarmState oldState = alarm.oldAlarmState;
+            af.updateAlarmState();
+            if(listener != null && oldState != newState){
+                listener.onAlarmStateChange(alarm, newState, oldState);
             }
         } else {
-            Log.e("AlarmPanelFragment", "Cannot find fragment for alarm " + alarmID);
+            Log.e("AlarmPanelFragment", "Cannot find fragment for alarm " + alarm.getAlarmID());
         }
 
-        if(AlarmsMessageSchema.isAlarmStateOn(alarmState)){
+        if(alarm.isRaised()){
             if(horizontal) {
                 HorizontalScrollView sv = contentView.findViewById(R.id.alarmsCtnScrollView);
                 sv.smoothScrollTo(af.getView().getLeft(), 0);
@@ -270,6 +273,7 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
                 sv.smoothScrollTo(0, af.getView().getTop());
             }
         }
+
         //update panel info
         updateAlarmPanelInfo();
     }
@@ -283,7 +287,7 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
         String alarmMessages = null;
         for(Alarm a : alarmsMap.values()){
             try {
-                switch (a.alarmState) {
+                switch (a.getAlarmState()) {
                     case DISABLED:
                         disabled++;
                         break;
@@ -291,7 +295,7 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
                         off++;
                         break;
                     default:
-                        alarmMessages = (alarmMessages == null ? "" : alarmMessages + ", ") + a.getName() + ": " + a.alarmMessage;
+                        alarmMessages = (alarmMessages == null ? "" : alarmMessages + ", ") + a.getName() + ": " + a.getAlarmMessage();
                         on++;
                         break;
                 }

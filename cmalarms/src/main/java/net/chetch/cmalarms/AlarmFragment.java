@@ -21,7 +21,9 @@ import android.widget.TextView;
 import net.chetch.cmalarms.data.Alarm;
 import net.chetch.cmalarms.models.AlarmsMessageSchema;
 import net.chetch.cmalarms.models.AlarmsMessagingModel;
+import net.chetch.utilities.Utils;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,8 +78,8 @@ public class AlarmFragment extends Fragment {
             TextView tv = contentView.findViewById(R.id.alarmName);
             tv.setText(alarm.getName());
 
-            if(alarm.alarmState != null){
-                updateAlarmState(alarm.alarmState);
+            if(alarm.hasAlarmState()){
+                updateAlarmState();
             }
         }
 
@@ -93,8 +95,10 @@ public class AlarmFragment extends Fragment {
         model = ViewModelProviders.of(getActivity()).get(AlarmsMessagingModel.class);
     }
 
-    public void updateAlarmState(AlarmsMessageSchema.AlarmState alarmState){
+    public void updateAlarmState(){
         try {
+            AlarmsMessageSchema.AlarmState alarmState = alarm.getAlarmState();
+
             ImageView iv = contentView.findViewById(R.id.alarmIndicator);
             GradientDrawable gd = (GradientDrawable)iv.getDrawable();
             int indicatorColour = indidcatorColourMap.get(alarmState);
@@ -103,6 +107,26 @@ public class AlarmFragment extends Fragment {
             TextView tv = contentView.findViewById(R.id.alarmName);
             int lblColour = lblColourMap.get(alarmState);
             tv.setTextColor(lblColour);
+
+            tv = contentView.findViewById(R.id.alarmLastRaised);
+            if(tv != null){
+                String msg = "";
+                try {
+                    if (alarm.isDisabled()) {
+                        msg = "Disabled on " + Utils.formatDate(alarm.getLastDisabled(), "dd/MM/yy");
+                    } else {
+                        Calendar lastRaised= alarm.getLastRaised();
+                        if(lastRaised == null){
+                            msg = "This alarm has never been raised";
+                        } else {
+                            msg = "Last raised on " + Utils.formatDate(alarm.getLastRaised(), "dd/MM/yy") + " for " + Utils.formatDuration(alarm.getLastRaisedFor() * 1000);
+                        }
+                    }
+                } catch (Exception e){
+                    Log.e("AF", e.getMessage());
+                }
+                tv.setText(msg);
+            }
 
             currentAlarmState = alarmState;
             Log.i("AlarmFragment", "Updated state of " + getTag() + " to " + alarmState);
@@ -118,7 +142,9 @@ public class AlarmFragment extends Fragment {
             MenuItem.OnMenuItemClickListener selectItem = (item) -> {
                 switch(item.getItemId()){
                     case MENU_ITEM_DISABLE:
-                        model.disableAlarm(alarm.getAlarmID());
+                        if(listener != null) {
+                            listener.onDisableAlarm(alarm);
+                        }
                         return true;
                     case MENU_ITEM_ENABLE:
                         model.enableAlarm(alarm.getAlarmID());
@@ -143,9 +169,10 @@ public class AlarmFragment extends Fragment {
                     menu.add(0, MENU_ITEM_TEST, 0, "Test alarm").setOnMenuItemClickListener(selectItem);
                     break;
                 default:
-                    menu.add(0, MENU_ITEM_DISABLE, 0, "Disable alarm").setOnMenuItemClickListener(selectItem);
                     break;
             }
+            menu.add(0, MENU_ITEM_VIEW_LOG, 0, "View Log").setOnMenuItemClickListener(selectItem);
+
         } catch (Exception e){
             Log.e("AlarmPanel", "onCreateContextMenu: " + e.getMessage());
         }

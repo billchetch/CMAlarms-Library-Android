@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 
 import net.chetch.appframework.GenericActivity;
+import net.chetch.cmalarms.AlarmLogDialogFragment;
 import net.chetch.cmalarms.AlarmPanelFragment;
 import net.chetch.appframework.GenericActivity;
 import net.chetch.cmalarms.IAlarmPanelListener;
@@ -92,6 +93,9 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
         wsModel.getError().observe(this, throwable ->{
             handleError(throwable, wsModel);
         });
+        wsModel.getLog().observe(this, alarmsLogEntries -> {
+            Log.i("Main", "Log returns: "+ alarmsLogEntries.size());
+        });
 
 
         //Components
@@ -124,12 +128,21 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
 
     @Override
     public void onViewAlarmsLog(Alarm alarm) {
-        //wsModel.getLog();
+        //wsModel.getLog(alarm);
+        AlarmLogDialogFragment alarmLogDialog = new AlarmLogDialogFragment();
+        alarmLogDialog.show(getSupportFragmentManager(), "AlarmLogDialog");
     }
 
     @Override
     public void onSilenceAlarmBuzzer(int duration) {
 
+    }
+
+    @Override
+    public void onDisableAlarm(Alarm alarm) {
+        showConfirmationDialog("Are you sure you want to disable " + alarm.getName() + "?", (dialog, which)->{
+            model.disableAlarm(alarm.getAlarmID());
+             });
     }
 
 

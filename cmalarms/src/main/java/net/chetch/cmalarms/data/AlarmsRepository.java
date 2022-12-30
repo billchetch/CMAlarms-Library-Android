@@ -31,7 +31,7 @@ public class AlarmsRepository extends WebserviceRepository<IAlarmsWebservice> {
     public DataStore<AlarmsLog> getLog(Calendar fromDate, Calendar toDate, String alarmID){
         final DataStore<AlarmsLog> entries = new DataStore<>();
 
-        service.getLog(date4request(fromDate), date4request(toDate), alarmID).enqueue(createCallback(entries));
+        service.getLog(fromDate == null ? null : date4request(fromDate), toDate == null ? null : date4request(toDate), alarmID).enqueue(createCallback(entries));
 
         return entries;
     }

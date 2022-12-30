@@ -41,14 +41,14 @@ public class AlarmsMessagingModel extends MessagingViewModel {
             String amessage = schema.getAlarmMessage();
             if(alarmsMap.containsKey(alarmID)) {
                 Alarm alarm = alarmsMap.get(alarmID);
-                alarm.alarmState = astate;
-                alarm.alarmMessage = amessage;
+                alarm.setAlarmState(astate, schema.isTesting());
+                alarm.setAlarmMessage(amessage);
                 liveDataAlertedAlarm.postValue(alarm);
             }
-            liveDataPilotOn.postValue(Boolean.valueOf(schema.isPilotOn()));
-            liveDataBuzzerOn.postValue(Boolean.valueOf(schema.isBuzzerOn()));
-            liveDataBuzzerSilenced.postValue(Boolean.valueOf(schema.isBuzzerSilenced()));
-            liveDataTesting.postValue(Boolean.valueOf(schema.isTesting()));
+            liveDataPilotOn.postValue(schema.isPilotOn());
+            liveDataBuzzerOn.postValue(schema.isBuzzerOn());
+            liveDataBuzzerSilenced.postValue(schema.isBuzzerSilenced());
+            liveDataTesting.postValue(schema.isTesting());
         }
     };
 
@@ -91,15 +91,15 @@ public class AlarmsMessagingModel extends MessagingViewModel {
             for(Map.Entry<String, AlarmsMessageSchema.AlarmState> entry : l.entrySet()){
                 if(alarmsMap.containsKey(entry.getKey())){
                     Alarm a = alarmsMap.get(entry.getKey());
-                    a.alarmState = entry.getValue();
+                    a.setAlarmState(entry.getValue(), schema.isTesting());
                 }
             }
 
             liveDataAlarmStates.postValue(l);
-            liveDataPilotOn.postValue(Boolean.valueOf(schema.isPilotOn()));
-            liveDataBuzzerOn.postValue(Boolean.valueOf(schema.isBuzzerOn()));
-            liveDataBuzzerSilenced.postValue(Boolean.valueOf(schema.isBuzzerSilenced()));
-            liveDataTesting.postValue(Boolean.valueOf(schema.isTesting()));
+            liveDataPilotOn.postValue(schema.isPilotOn());
+            liveDataBuzzerOn.postValue(schema.isBuzzerOn());
+            liveDataBuzzerSilenced.postValue(schema.isBuzzerSilenced());
+            liveDataTesting.postValue(schema.isTesting());
 
             buzzerID = schema.getBuzzerID();
         }
@@ -176,6 +176,10 @@ public class AlarmsMessagingModel extends MessagingViewModel {
 
     public LiveData<List<Alarm>> getAlarms(){
         return liveDataAlarms;
+    }
+
+    public Alarm getAlarmByID(String alarmID){
+        return alarmsMap.containsKey(alarmID) ? alarmsMap.get(alarmID) : null;
     }
 
     public LiveData<Map<String, AlarmsMessageSchema.AlarmState>> getAlarmStates(){
