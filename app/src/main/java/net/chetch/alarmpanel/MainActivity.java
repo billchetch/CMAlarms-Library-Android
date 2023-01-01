@@ -73,7 +73,7 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //includeActionBar(SettingsActivity.class);
+        includeActionBar(SettingsActivity.class);
 
         //Get models
         Log.i("Main", "Calling load data");
