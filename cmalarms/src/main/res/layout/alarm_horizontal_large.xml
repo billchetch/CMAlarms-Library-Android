@@ -26,7 +26,7 @@
         app:srcCompat="@drawable/alarm_button" />
 
     <TextView
-        android:id="@+id/alarmName"
+        android:id="@+id/alarmState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -45,6 +45,6 @@
         android:textSize="10sp"
         android:textStyle="italic"
         app:layout_constraintStart_toEndOf="@+id/alarmIndicatorBg"
-        app:layout_constraintTop_toBottomOf="@+id/alarmName" />
+        app:layout_constraintTop_toBottomOf="@+id/alarmState" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

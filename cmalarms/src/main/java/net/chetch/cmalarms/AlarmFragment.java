@@ -75,7 +75,7 @@ public class AlarmFragment extends Fragment {
         }
 
         if(alarm != null){
-            TextView tv = contentView.findViewById(R.id.alarmName);
+            TextView tv = contentView.findViewById(R.id.alarmState);
             tv.setText(alarm.getName());
 
             if(alarm.hasAlarmState()){
@@ -104,7 +104,7 @@ public class AlarmFragment extends Fragment {
             int indicatorColour = indidcatorColourMap.get(alarmState);
             gd.setColor(indicatorColour);
 
-            TextView tv = contentView.findViewById(R.id.alarmName);
+            TextView tv = contentView.findViewById(R.id.alarmState);
             int lblColour = lblColourMap.get(alarmState);
             tv.setTextColor(lblColour);
 
@@ -119,7 +119,8 @@ public class AlarmFragment extends Fragment {
                         if(lastRaised == null){
                             msg = "This alarm has never been raised";
                         } else {
-                            msg = "Last raised on " + Utils.formatDate(alarm.getLastRaised(), "dd/MM/yy") + " for " + Utils.formatDuration(alarm.getLastRaisedFor() * 1000);
+                            msg = "Last raised on " + Utils.formatDate(alarm.getLastRaised(), "dd/MM/yy");
+                            if(alarm.getLastRaisedFor() > 0) msg += " for " + Utils.formatDuration(alarm.getLastRaisedFor() * 1000);
                         }
                     }
                 } catch (Exception e){

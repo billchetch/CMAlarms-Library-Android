@@ -1,21 +1,15 @@
 package net.chetch.alarmpanel;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 
 import net.chetch.appframework.GenericActivity;
-import net.chetch.cmalarms.AlarmLogDialogFragment;
+import net.chetch.cmalarms.AlarmsLogDialogFragment;
 import net.chetch.cmalarms.AlarmPanelFragment;
-import net.chetch.appframework.GenericActivity;
 import net.chetch.cmalarms.IAlarmPanelListener;
 import net.chetch.cmalarms.data.Alarm;
 import net.chetch.cmalarms.models.AlarmsMessageSchema;
@@ -24,7 +18,6 @@ import net.chetch.cmalarms.models.AlarmsWebserviceModel;
 import net.chetch.messaging.ClientConnection;
 import net.chetch.webservices.ConnectManager;
 import net.chetch.webservices.WebserviceViewModel;
-import net.chetch.webservices.network.NetworkRepository;
 
 public class MainActivity extends GenericActivity implements IAlarmPanelListener {
 
@@ -93,9 +86,6 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
         wsModel.getError().observe(this, throwable ->{
             handleError(throwable, wsModel);
         });
-        wsModel.getLog().observe(this, alarmsLogEntries -> {
-            Log.i("Main", "Log returns: "+ alarmsLogEntries.size());
-        });
 
 
         //Components
@@ -129,8 +119,10 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
     @Override
     public void onViewAlarmsLog(Alarm alarm) {
         //wsModel.getLog(alarm);
-        AlarmLogDialogFragment alarmLogDialog = new AlarmLogDialogFragment();
-        alarmLogDialog.show(getSupportFragmentManager(), "AlarmLogDialog");
+        AlarmsLogDialogFragment alarmsLogDialog = new AlarmsLogDialogFragment();
+        alarmsLogDialog.alarmsWebserviceModel = wsModel;
+        alarmsLogDialog.alarm = alarm;
+        alarmsLogDialog.show(getSupportFragmentManager(), "AlarmsLogDialog");
     }
 
     @Override
