@@ -113,13 +113,13 @@ public class AlarmFragment extends Fragment {
                 String msg = "";
                 try {
                     if (alarm.isDisabled()) {
-                        msg = "Disabled on " + Utils.formatDate(alarm.getLastDisabled(), "dd/MM/yy");
+                        msg = "Disabled on " + Utils.formatDate(alarm.getLastDisabled(), "dd/MM/yy HH:mm:ss");
                     } else {
                         Calendar lastRaised= alarm.getLastRaised();
                         if(lastRaised == null){
                             msg = "This alarm has never been raised";
                         } else {
-                            msg = "Last raised on " + Utils.formatDate(alarm.getLastRaised(), "dd/MM/yy");
+                            msg = "Last raised on " + Utils.formatDate(alarm.getLastRaised(), "dd/MM/yy HH:mm:ss");
                             if(alarm.getLastRaisedFor() > 0) msg += " for " + Utils.formatDuration(alarm.getLastRaisedFor() * 1000);
                         }
                     }

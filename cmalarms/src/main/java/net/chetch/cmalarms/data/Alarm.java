@@ -35,8 +35,10 @@ public class Alarm extends DataObject {
     public void setAlarmState(AlarmsMessageSchema.AlarmState alarmState, boolean testing){
         oldAlarmState = getAlarmState();
         this.testing = testing;
+        boolean stateChange = oldAlarmState != alarmState;
+
         setValue("alarm_state", alarmState.toString());
-        if(!testing) {
+        if(!testing && stateChange) {
             switch (alarmState) {
                 case DISABLED:
                     setValue("last_disabled", Calendar.getInstance());
