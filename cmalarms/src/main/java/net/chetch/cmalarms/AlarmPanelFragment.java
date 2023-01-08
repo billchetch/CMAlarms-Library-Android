@@ -36,6 +36,7 @@ import net.chetch.cmalarms.models.AlarmsWebserviceModel;
 import net.chetch.messaging.MessagingViewModel;
 import net.chetch.utilities.Animation;
 import net.chetch.utilities.SLog;
+import net.chetch.utilities.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -210,14 +211,14 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
     public void onStart() {
         super.onStart();
 
-        model.resumePingServices(); //incase this is restarting
+        model.resume(); //incase this is restarting
     }
 
     @Override
     public void onStop() {
         super.onStop();
 
-        model.pausePingServices();
+        model.pause();
     }
 
     public void populateAlarms(List<Alarm> alarms) {
@@ -284,7 +285,9 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
         int disabled = 0;
         int on  = 0;
         int off = 0;
-        String alarmMessages = null;
+        String alarmMessage = null;
+        Alarm alarmLastRaised = null;
+
         for(Alarm a : alarmsMap.values()){
             try {
                 switch (a.getAlarmState()) {
@@ -295,12 +298,18 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
                         off++;
                         break;
                     default:
-                        alarmMessages = (alarmMessages == null ? "" : alarmMessages + ", ") + a.getName() + ": " + a.getAlarmMessage();
+                        if(alarmMessage == null) {
+                            alarmMessage = a.getName() + ": " + a.getAlarmMessage();
+                        }
                         on++;
                         break;
                 }
             } catch (Exception e){
                 Log.e("AlarmPanelFragment", e.getMessage());
+            }
+
+            if(a.getLastRaised() != null && (alarmLastRaised == null || a.getLastRaised().getTimeInMillis() > alarmLastRaised.getLastRaised().getTimeInMillis())){
+                alarmLastRaised = a;
             }
         }
 
@@ -308,11 +317,31 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
         if(on ==  0){
             tv.setTextColor(ContextCompat.getColor(getContext(), R.color.lightGrey));
             tv.setTypeface(tv.getTypeface(), Typeface.ITALIC);
-            tv.setText(disabled == 0 ? "All alarms operational" : disabled + " alarms disabled, " + off + " alarms operational");
+            String s = disabled == 0 ? "All alarms operational" : disabled + " alarms disabled, " + off + " alarms operational";
+            tv.setText(s);
+
+            tv = contentView.findViewById(R.id.alarmPanelInfoSub);
+            if(tv != null) {
+                tv.setTextColor(ContextCompat.getColor(getContext(), R.color.lightGrey));
+                tv.setTypeface(tv.getTypeface(), Typeface.ITALIC);
+                if (alarmLastRaised != null) {
+                    s = "Last alarm raised was " + alarmLastRaised.getName();
+                    s+= " on " + Utils.formatDate(alarmLastRaised.getLastRaised(), AlarmFragment.ALARM_STATE_CHANGE_DATE_FORMAT) + " for " + Utils.formatDuration(alarmLastRaised.getLastRaisedFor() * 1000, Utils.DurationFormat.DAYS_HOURS_MINS_SECS);
+                } else {
+                    s = "No alarm has ever been raised";
+                }
+                tv.setText(s);
+            }
         } else {
             tv.setTextColor(ContextCompat.getColor(getContext(), R.color.errorRed));
             tv.setTypeface(tv.getTypeface(), Typeface.BOLD_ITALIC);
-            tv.setText(alarmMessages);
+            tv.setText(alarmMessage);
+            tv = contentView.findViewById(R.id.alarmPanelInfoSub);
+            if(tv != null) {
+                tv.setTextColor(ContextCompat.getColor(getContext(), R.color.errorRed));
+                tv.setTypeface(tv.getTypeface(), Typeface.BOLD_ITALIC);
+                String s = ""; //TODO: add some info here
+            }
         }
     }
 

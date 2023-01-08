@@ -19,6 +19,9 @@ import net.chetch.messaging.ClientConnection;
 import net.chetch.webservices.ConnectManager;
 import net.chetch.webservices.WebserviceViewModel;
 
+import java.net.SocketException;
+import java.util.Stack;
+
 public class MainActivity extends GenericActivity implements IAlarmPanelListener {
 
     static boolean loaded = false;
@@ -27,6 +30,8 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
     AlarmsWebserviceModel wsModel;
 
     AlarmPanelFragment alarmPanelFragment;
+
+    ConnectManager connectManager = new ConnectManager();
 
     Observer connectProgress  = obj -> {
         if(obj instanceof WebserviceViewModel.LoadProgress) {
@@ -92,7 +97,6 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
         alarmPanelFragment = (AlarmPanelFragment)getSupportFragmentManager().findFragmentById(R.id.alarmPanelFragment);
         alarmPanelFragment.listener = this;
 
-        ConnectManager connectManager = new ConnectManager();
         try {
             model.setClientName("ACMCAPAlarms");
 
@@ -107,8 +111,34 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
     }
 
     private void handleError(Throwable t, Object source){
-        showError(t);
+        if(t instanceof SocketException){
+            SocketException sex = (SocketException)t;
+            String stackTrace = "";
+            StackTraceElement[] st = sex.getStackTrace();
+            for(StackTraceElement ste : st){
+                String s = ste.getFileName() + " @ " + ste.getLineNumber() + " in " + ste.getMethodName();
+                stackTrace += s + "\n";
+            }
+            showError(sex.getMessage() + "\n" + sex.getCause() + "\n" + stackTrace);
+        } else {
+            showError(t);
+        }
         Log.e("MAIN", t.getClass() + ": " + t.getMessage());
+    }
+
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        connectManager.resume();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        stopTimer();
+        connectManager.pause();
     }
 
     @Override

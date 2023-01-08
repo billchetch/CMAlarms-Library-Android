@@ -28,11 +28,23 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="32dp"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="18dp"
                 android:textSize="24sp"
                 app:layout_constraintEnd_toStartOf="@+id/alarmsPilotCtn"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/alarmPanelInfoSub"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="4dp"
+                android:textSize="18sp"
+                android:textStyle="italic"
+                app:layout_constraintEnd_toStartOf="@+id/alarmsPilotCtn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/alarmInfo" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/alarmsPilotCtn"

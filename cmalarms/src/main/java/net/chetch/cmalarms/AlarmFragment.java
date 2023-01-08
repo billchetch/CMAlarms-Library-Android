@@ -32,6 +32,7 @@ public class AlarmFragment extends Fragment {
     static final int MENU_ITEM_ENABLE = 2;
     static final int MENU_ITEM_TEST = 3;
     static final int MENU_ITEM_VIEW_LOG = 4;
+    static final String ALARM_STATE_CHANGE_DATE_FORMAT = "dd/MM/yy HH:mm:ss";
 
     Map<AlarmsMessageSchema.AlarmState, Integer> indidcatorColourMap = new HashMap<>();
     Map<AlarmsMessageSchema.AlarmState, Integer> lblColourMap = new HashMap<>();
@@ -113,13 +114,13 @@ public class AlarmFragment extends Fragment {
                 String msg = "";
                 try {
                     if (alarm.isDisabled()) {
-                        msg = "Disabled on " + Utils.formatDate(alarm.getLastDisabled(), "dd/MM/yy HH:mm:ss");
+                        msg = "Disabled on " + Utils.formatDate(alarm.getLastDisabled(), ALARM_STATE_CHANGE_DATE_FORMAT);
                     } else {
                         Calendar lastRaised= alarm.getLastRaised();
                         if(lastRaised == null){
                             msg = "This alarm has never been raised";
                         } else {
-                            msg = "Last raised on " + Utils.formatDate(alarm.getLastRaised(), "dd/MM/yy HH:mm:ss");
+                            msg = "Last raised on " + Utils.formatDate(alarm.getLastRaised(),  ALARM_STATE_CHANGE_DATE_FORMAT);
                             if(alarm.getLastRaisedFor() > 0) msg += " for " + Utils.formatDuration(alarm.getLastRaisedFor() * 1000);
                         }
                     }
