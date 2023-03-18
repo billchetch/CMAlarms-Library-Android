@@ -24,7 +24,8 @@ import java.util.Stack;
 
 public class MainActivity extends GenericActivity implements IAlarmPanelListener {
 
-    static boolean loaded = false;
+    static boolean connected = false;
+    static boolean suppressConnectionErrors = false;
 
     AlarmsMessagingModel model;
     AlarmsWebserviceModel wsModel;
@@ -67,6 +68,7 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
                 case CONNECTED:
                     hideProgress();
                     Log.i("Main", "All connections made");
+                    connected = true;
                     break;
             }
 
@@ -110,16 +112,26 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
 
     }
 
+    private String getStackTrace(Throwable t){
+        String stackTrace = "";
+        StackTraceElement[] st = t.getStackTrace();
+        for(StackTraceElement ste : st){
+            String s = ste.getFileName() + " @ " + ste.getLineNumber() + " in " + ste.getMethodName();
+            stackTrace += s + "\n";
+        }
+        return stackTrace;
+    }
+
     private void handleError(Throwable t, Object source){
+
+        if(suppressConnectionErrors && connected &&  connectManager.isConnectionError(t)){
+            String errMsg = t.getMessage() + "\n" + t.getCause() + "\n" +  getStackTrace(t);
+            Log.e("MAIN", "Suppressed connection error: " + errMsg);
+            return;
+        }
+
         if(t instanceof SocketException){
-            SocketException sex = (SocketException)t;
-            String stackTrace = "";
-            StackTraceElement[] st = sex.getStackTrace();
-            for(StackTraceElement ste : st){
-                String s = ste.getFileName() + " @ " + ste.getLineNumber() + " in " + ste.getMethodName();
-                stackTrace += s + "\n";
-            }
-            showError(sex.getMessage() + "\n" + sex.getCause() + "\n" + stackTrace);
+            showError(t.getMessage() + "\n" + t.getCause() + "\n" + getStackTrace(t));
         } else {
             showError(t);
         }

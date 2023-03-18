@@ -340,7 +340,8 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
             if(tv != null) {
                 tv.setTextColor(ContextCompat.getColor(getContext(), R.color.errorRed));
                 tv.setTypeface(tv.getTypeface(), Typeface.BOLD_ITALIC);
-                String s = ""; //TODO: add some info here
+                String s = on + (on == 1 ?  " alarm " : " alarms ") + "raised";
+                tv.setText(s);
             }
         }
     }

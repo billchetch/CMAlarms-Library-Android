@@ -18,5 +18,9 @@ public class SettingsActivity extends SettingsActivityBase {
                 Log.e("Settings", e.getMessage());
             }
         }
+
+        if(key.equals("suppress_connection_errors")){
+            MainActivity.suppressConnectionErrors = sharedPreferences.getBoolean("suppress_connection_errors", true);
+        }
     }
 }

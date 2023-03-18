@@ -14,7 +14,7 @@ import androidx.fragment.app.Fragment;
 public class AlarmsLogEntryFragment extends Fragment {
 
     private View contentView;
-    public static final String ENTRY_DATE_FORMAT = "dd/MM/yyyy HH:mm:ss Z";
+    public static final String ENTRY_DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

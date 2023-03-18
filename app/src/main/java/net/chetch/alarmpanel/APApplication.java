@@ -21,6 +21,8 @@ public class APApplication extends ChetchApplication {
             //String apiBaseURL = "http://192.168.1.106:8001/api";
             NetworkRepository.getInstance().setAPIBaseURL(apiBaseURL);
 
+            MainActivity.suppressConnectionErrors = sharedPref.getBoolean("suppress_connection_errors", true);
+
         } catch (Exception e){
             Log.e("APApplication", e.getMessage());
         }
