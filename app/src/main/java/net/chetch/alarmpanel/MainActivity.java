@@ -105,6 +105,7 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
             connectManager.addModel(model);
             connectManager.addModel(wsModel);
 
+            connectManager.setPermissableServerTimeDifference(5 * 60);
             connectManager.requestConnect(connectProgress);
         } catch (Exception e){
             showError(e);

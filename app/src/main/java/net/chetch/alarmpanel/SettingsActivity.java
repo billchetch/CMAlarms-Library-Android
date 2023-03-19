@@ -19,6 +19,11 @@ public class SettingsActivity extends SettingsActivityBase {
             }
         }
 
+        if(key.equals("restart_after")){
+            int restartAfter = Integer.parseInt(sharedPreferences.getString(key, "12"));
+            ((APApplication)getApplication()).setRestartAfter(restartAfter);
+        }
+
         if(key.equals("suppress_connection_errors")){
             MainActivity.suppressConnectionErrors = sharedPreferences.getBoolean("suppress_connection_errors", true);
         }
