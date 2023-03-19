@@ -124,18 +124,18 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
     }
 
     private void handleError(Throwable t, Object source){
-
-        if(suppressConnectionErrors && connected &&  connectManager.isConnectionError(t)){
-            String errMsg = t.getMessage() + "\n" + t.getCause() + "\n" +  getStackTrace(t);
+        String errMsg;
+        if(suppressConnectionErrors && connected &&  ConnectManager.isConnectionError(t)){
+            errMsg = t.getClass().getName() +"\n" + t.getMessage() + "\n" + t.getCause() + "\n" +  getStackTrace(t);
             Log.e("MAIN", "Suppressed connection error: " + errMsg);
             return;
         }
 
-        if(t instanceof SocketException){
-            showError(t.getMessage() + "\n" + t.getCause() + "\n" + getStackTrace(t));
-        } else {
-            showError(t);
-        }
+        errMsg = "SCE: " + suppressConnectionErrors + ", CNCT: " + connected + ", ICE: " + ConnectManager.isConnectionError(t);
+        errMsg += "\n" + t.getClass().getName() +"\n" + t.getMessage() + "\n" + t.getCause() + "\n" +  getStackTrace(t);
+
+        showError(errMsg);
+
         Log.e("MAIN", t.getClass() + ": " + t.getMessage());
     }
 
