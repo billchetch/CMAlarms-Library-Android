@@ -100,7 +100,7 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
         alarmPanelFragment.listener = this;
 
         try {
-            model.setClientName("ACMCAPAlarms");
+            model.setClientName("ACMCAPAlarms", getApplicationContext());
 
             connectManager.addModel(model);
             connectManager.addModel(wsModel);
