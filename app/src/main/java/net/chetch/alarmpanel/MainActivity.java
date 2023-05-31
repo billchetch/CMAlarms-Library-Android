@@ -16,6 +16,7 @@ import net.chetch.cmalarms.models.AlarmsMessageSchema;
 import net.chetch.cmalarms.models.AlarmsMessagingModel;
 import net.chetch.cmalarms.models.AlarmsWebserviceModel;
 import net.chetch.messaging.ClientConnection;
+import net.chetch.messaging.exceptions.MessagingServiceException;
 import net.chetch.webservices.ConnectManager;
 import net.chetch.webservices.WebserviceViewModel;
 
@@ -125,7 +126,7 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
 
     private void handleError(Throwable t, Object source){
         String errMsg;
-        if(suppressConnectionErrors && connected &&  ConnectManager.isConnectionError(t)){
+        if(suppressConnectionErrors && connected &&  (ConnectManager.isConnectionError(t) || t instanceof MessagingServiceException)){
             errMsg = t.getClass().getName() +"\n" + t.getMessage() + "\n" + t.getCause() + "\n" +  getStackTrace(t);
             Log.e("MAIN", "Suppressed connection error: " + errMsg);
             return;

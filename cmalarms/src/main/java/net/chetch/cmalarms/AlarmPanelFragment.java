@@ -50,6 +50,7 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
     static final int MENU_ITEM_VIEW_LOG = 100;
     static final int MENU_ITEM_TEST_BUZZER = 200;
     static final int MENU_ITEM_TEST_PILOT = 201;
+    static final int MENU_ITEM_UNSILENCE = 300;
 
     public boolean horizontal = true;
     public IAlarmPanelListener listener;
@@ -196,12 +197,16 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
                 menu.add(0, MENU_ITEM_SILENCE_10_MIN, 0, "Silence for 10 minutes").setOnMenuItemClickListener(this);
                 menu.add(0, MENU_ITEM_SILENCE_30_MIN, 0, "Silence for 30 minutes alarm").setOnMenuItemClickListener(this);
             } else if(model.isPilotOn()){
-                //add nothing at the moment
+                if(model.isBuzzerSilenced()){
+                    menu.add(0, MENU_ITEM_UNSILENCE, 0, "Unsilence buzzer").setOnMenuItemClickListener(this);
+                }
             } else {
                 //buzzer and pilot is off
                 menu.add(0, MENU_ITEM_TEST_BUZZER, 0, "Test Buzzer").setOnMenuItemClickListener(this);
                 menu.add(0, MENU_ITEM_TEST_PILOT, 0, "Test Pilot").setOnMenuItemClickListener(this);
             }
+
+
             menu.add(0, MENU_ITEM_VIEW_LOG, 0, "View Log").setOnMenuItemClickListener(this);
             contextMenu = menu;
         }
@@ -392,6 +397,10 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
                     int duration = 60 * menuItem.getItemId();
                     model.silenceBuzzer(duration);
                 }
+                break;
+
+            case MENU_ITEM_UNSILENCE:
+                model.unsilenceBuzzer();
                 break;
 
             case MENU_ITEM_TEST_BUZZER:

@@ -109,6 +109,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         @Override
         protected void onMatched(Message message) {
             AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
+            liveDataBuzzerOn.postValue(schema.isBuzzerOn());
             liveDataBuzzerSilenced.postValue(Boolean.valueOf(schema.isBuzzerSilenced()));
         }
     };
@@ -117,6 +118,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         @Override
         protected void onMatched(Message message) {
             AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
+            liveDataBuzzerOn.postValue(schema.isBuzzerOn());
             liveDataBuzzerSilenced.postValue(Boolean.valueOf(schema.isBuzzerSilenced()));
         }
     };
