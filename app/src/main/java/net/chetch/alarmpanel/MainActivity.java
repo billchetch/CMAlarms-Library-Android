@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import net.chetch.appframework.GenericActivity;
 import net.chetch.cmalarms.AlarmsLogDialogFragment;
@@ -16,7 +18,12 @@ import net.chetch.cmalarms.models.AlarmsMessageSchema;
 import net.chetch.cmalarms.models.AlarmsMessagingModel;
 import net.chetch.cmalarms.models.AlarmsWebserviceModel;
 import net.chetch.messaging.ClientConnection;
+import net.chetch.messaging.MessagingViewModel;
+import net.chetch.messaging.TCPClient;
+import net.chetch.messaging.exceptions.MessagingException;
 import net.chetch.messaging.exceptions.MessagingServiceException;
+import net.chetch.utilities.Logger;
+import net.chetch.utilities.SLog;
 import net.chetch.webservices.ConnectManager;
 import net.chetch.webservices.WebserviceViewModel;
 
@@ -36,14 +43,16 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
     ConnectManager connectManager = new ConnectManager();
 
     Observer connectProgress  = obj -> {
+        showProgress();
         if(obj instanceof WebserviceViewModel.LoadProgress) {
             WebserviceViewModel.LoadProgress progress = (WebserviceViewModel.LoadProgress) obj;
             try {
                 String state = progress.startedLoading ? "Loading" : "Loaded";
                 String progressInfo = state + (progress.info == null ? "" : " " + progress.info.toLowerCase());
-                if(progress.dataLoaded != null){
+                /*if(progress.dataLoaded != null){
                     progressInfo += " - " + progress.dataLoaded.getClass().toString();
-                }
+                }*/
+                setProgressInfo(progressInfo);
                 Log.i("Main", "in load data progress ..." + progressInfo);
 
             } catch (Exception e) {
@@ -76,6 +85,7 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
         }
     };
 
+    boolean testButtonClicked = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,11 +94,17 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
         includeActionBar(SettingsActivity.class);
 
         //Get models
-        Log.i("Main", "Calling load data");
+        Logger.info("Main activity setting up model callbacks ...");
+        SLog.i("Main", "Calling load data");
         model = ViewModelProviders.of(this).get(AlarmsMessagingModel.class);
         model.getError().observe(this, throwable -> {
-            handleError(throwable, model);
+            try {
+                handleError(throwable, model);
+            } catch (Exception e){
+                SLog.e("Main", e.getMessage());
+            }
         });
+
 
         wsModel = new ViewModelProvider(this).get(AlarmsWebserviceModel.class);
         wsModel.getError().observe(this, throwable ->{
@@ -97,10 +113,12 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
 
 
         //Components
+        Logger.info("Main activity setting up creting components ...");
         alarmPanelFragment = (AlarmPanelFragment)getSupportFragmentManager().findFragmentById(R.id.alarmPanelFragment);
         alarmPanelFragment.listener = this;
 
         try {
+            Logger.info("Main activity sstting cm client name, adding modules and requesting connect ...");
             model.setClientName("ACMCAPAlarms", getApplicationContext());
 
             connectManager.addModel(model);
@@ -112,6 +130,17 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
             showError(e);
         }
 
+        //REMOVE THIS
+        /*Button btn = findViewById(R.id.testButton);
+        btn.setOnClickListener((v)->{
+            if(testButtonClicked){
+                connectManager.resume();
+            } else {
+                model.getClient().close();
+                connectManager.pause();
+            }
+            testButtonClicked = !testButtonClicked;
+        });*/
     }
 
     private String getStackTrace(Throwable t){
@@ -126,24 +155,27 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
 
     private void handleError(Throwable t, Object source){
         String errMsg;
-        if(suppressConnectionErrors && connected &&  (ConnectManager.isConnectionError(t) || t instanceof MessagingServiceException)){
-            errMsg = t.getClass().getName() +"\n" + t.getMessage() + "\n" + t.getCause() + "\n" +  getStackTrace(t);
-            Log.e("MAIN", "Suppressed connection error: " + errMsg);
+        if (suppressConnectionErrors && connected && (ConnectManager.isConnectionError(t) || t instanceof MessagingException)) {
+            errMsg = t.getClass().getName() + "\n" + t.getMessage() + "\n" + t.getCause() + "\n" + getStackTrace(t);
+            SLog.e("MAIN", "Suppressed connection error: " + errMsg);
+            Logger.error("Suppressed connection error: " + errMsg);
             return;
         }
 
         errMsg = "SCE: " + suppressConnectionErrors + ", CNCT: " + connected + ", ICE: " + ConnectManager.isConnectionError(t);
-        errMsg += "\n" + t.getClass().getName() +"\n" + t.getMessage() + "\n" + t.getCause() + "\n" +  getStackTrace(t);
+        errMsg += "\n" + t.getClass().getName() + "\n" + t.getMessage() + "\n" + t.getCause() + "\n" + getStackTrace(t);
 
         showError(errMsg);
 
-        Log.e("MAIN", t.getClass() + ": " + t.getMessage());
+        SLog.e("MAIN", t.getClass() + ": " + t.getMessage());
+
     }
 
 
     @Override
     protected void onRestart() {
         super.onRestart();
+
         connectManager.resume();
     }
 
@@ -151,7 +183,6 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
     protected void onStop() {
         super.onStop();
 
-        stopTimer();
         connectManager.pause();
     }
 
@@ -181,5 +212,18 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
              });
     }
 
+    @Override
+    public void openAbout() {
+        super.openAbout();
+        try {
+            ClientConnection client = model.getClient();
+            String s = client.getName() + " is of state " + client.getState() + "\n";
+            MessagingViewModel.MessagingService bbalarms = model.getMessaingService(AlarmsMessageSchema.SERVICE_NAME);
+            s+= bbalarms.name + " service is of state " + bbalarms.state;
+            aboutDialog.aboutBlurb = s;
 
+        } catch (Exception e){
+
+        }
+    }
 }
