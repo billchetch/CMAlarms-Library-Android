@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 
 import net.chetch.appframework.GenericActivity;
+import net.chetch.appframework.NotificationBar;
 import net.chetch.cmalarms.AlarmsLogDialogFragment;
 import net.chetch.cmalarms.AlarmPanelFragment;
 import net.chetch.cmalarms.IAlarmPanelListener;
@@ -28,9 +29,11 @@ import net.chetch.webservices.ConnectManager;
 import net.chetch.webservices.WebserviceViewModel;
 
 import java.net.SocketException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
-public class MainActivity extends GenericActivity implements IAlarmPanelListener {
+public class MainActivity extends GenericActivity implements IAlarmPanelListener, NotificationBar.INotifiable{
 
     static boolean connected = false;
     static boolean suppressConnectionErrors = false;
@@ -95,7 +98,6 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
 
         //Get models
         Logger.info("Main activity setting up model callbacks ...");
-        SLog.i("Main", "Calling load data");
         model = ViewModelProviders.of(this).get(AlarmsMessagingModel.class);
         model.getError().observe(this, throwable -> {
             try {
@@ -125,7 +127,11 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
             connectManager.addModel(wsModel);
 
             connectManager.setPermissableServerTimeDifference(5 * 60);
+
             connectManager.requestConnect(connectProgress);
+
+            NotificationBar.setView(findViewById(R.id.notificationbar));
+            NotificationBar.monitor(this, connectManager, "connection");
         } catch (Exception e){
             showError(e);
         }
@@ -225,5 +231,23 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
         } catch (Exception e){
 
         }
+    }
+
+
+    @Override
+    public void handleNotification(Object notifier, String tag) {
+        if(notifier instanceof ConnectManager){
+            ConnectManager cm = (ConnectManager)notifier;
+            switch(cm.getState()){
+                case CONNECTED:
+                    NotificationBar.show(NotificationBar.NotificationType.INFO, "All good and connected", 5);
+                    break;
+
+                case ERROR:
+                    break;
+            }
+        }
+
+
     }
 }

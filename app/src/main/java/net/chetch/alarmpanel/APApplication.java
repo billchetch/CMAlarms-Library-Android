@@ -37,9 +37,11 @@ public class APApplication extends ChetchApplication {
         PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         try{
-            String apiBaseURL = sharedPref.getString("api_base_url", null);
+            //String apiBaseURL = sharedPref.getString("api_base_url", null);
             //String apiBaseURL = "http://192.168.2.188:8001/api";
-            //String apiBaseURL = "http://192.168.1.102:8001/api";
+            //String apiBaseURL = "http://192.168.1.103:8001/api";
+            //String apiBaseURL = "http://192.168.1.100:8001/api";
+            String apiBaseURL = "http://192.168.4.102:8001/api";
             NetworkRepository.getInstance().setAPIBaseURL(apiBaseURL);
 
             MainActivity.suppressConnectionErrors = sharedPref.getBoolean("suppress_connection_errors", true);
