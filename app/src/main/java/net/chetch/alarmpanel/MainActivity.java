@@ -130,7 +130,7 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
 
             connectManager.requestConnect(connectProgress);
 
-            NotificationBar.setView(findViewById(R.id.notificationbar));
+            NotificationBar.setView(findViewById(R.id.notificationbar), 100);
             NotificationBar.monitor(this, connectManager, "connection");
         } catch (Exception e){
             showError(e);
@@ -160,15 +160,22 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
     }
 
     private void handleError(Throwable t, Object source){
-        String errMsg;
-        if (suppressConnectionErrors && connected && (ConnectManager.isConnectionError(t) || t instanceof MessagingException)) {
-            errMsg = t.getClass().getName() + "\n" + t.getMessage() + "\n" + t.getCause() + "\n" + getStackTrace(t);
+        if (suppressConnectionErrors && connected && (ConnectManager.isConnectionError(t) || t instanceof MessagingServiceException)) {
+            final String errMsg = t.getClass().getName() + "\n" + t.getMessage() + "\n" + t.getCause() + "\n" + getStackTrace(t);
             SLog.e("MAIN", "Suppressed connection error: " + errMsg);
             Logger.error("Suppressed connection error: " + errMsg);
+            NotificationBar.show(NotificationBar.NotificationType.ERROR,
+                    "An exception has occurred ...click for more details",
+                    t).setListener(new NotificationBar.INotificationListener() {
+                @Override
+                public void onClick(NotificationBar nb, NotificationBar.NotificationType ntype) {
+                    showError(errMsg);
+                }
+            });
             return;
         }
 
-        errMsg = "SCE: " + suppressConnectionErrors + ", CNCT: " + connected + ", ICE: " + ConnectManager.isConnectionError(t);
+        String errMsg = "SCE: " + suppressConnectionErrors + ", CNCT: " + connected + ", ICE: " + ConnectManager.isConnectionError(t);
         errMsg += "\n" + t.getClass().getName() + "\n" + t.getMessage() + "\n" + t.getCause() + "\n" + getStackTrace(t);
 
         showError(errMsg);
@@ -240,10 +247,15 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
             ConnectManager cm = (ConnectManager)notifier;
             switch(cm.getState()){
                 case CONNECTED:
-                    NotificationBar.show(NotificationBar.NotificationType.INFO, "All good and connected", 5);
+                    NotificationBar.show(NotificationBar.NotificationType.INFO, "Connected and ready to use.", null,5);
                     break;
 
                 case ERROR:
+                    NotificationBar.show(NotificationBar.NotificationType.ERROR, "Service unavailable.");
+                    break;
+
+                case RECONNECT_REQUEST:
+                    NotificationBar.show(NotificationBar.NotificationType.WARNING, "Attempting to reconnect...");
                     break;
             }
         }
