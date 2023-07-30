@@ -5,5 +5,5 @@
     <color name="ALARM_SEVERE">#FF7777</color>
     <color name="ALARM_MODERATE">#FFCCCC</color>
     <color name="ALARM_MINOR">#7cdad2</color>
-    <color name="ALARM_DISABLED">#666666</color>
+    <color name="ALARM_DISABLED">#333333</color>
 </resources>

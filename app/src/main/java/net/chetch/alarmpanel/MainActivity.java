@@ -25,7 +25,9 @@ import net.chetch.messaging.exceptions.MessagingException;
 import net.chetch.messaging.exceptions.MessagingServiceException;
 import net.chetch.utilities.Logger;
 import net.chetch.utilities.SLog;
+import net.chetch.utilities.Utils;
 import net.chetch.webservices.ConnectManager;
+import net.chetch.webservices.Webservice;
 import net.chetch.webservices.WebserviceViewModel;
 
 import java.net.SocketException;
@@ -229,10 +231,12 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
     public void openAbout() {
         super.openAbout();
         try {
+            String lf = "\n";
             ClientConnection client = model.getClient();
-            String s = client.getName() + " is of state " + client.getState() + "\n";
+            String s = client.getName() + " is of state " + client.getState() + lf;
             MessagingViewModel.MessagingService bbalarms = model.getMessaingService(AlarmsMessageSchema.SERVICE_NAME);
-            s+= bbalarms.name + " service is of state " + bbalarms.state;
+            s += bbalarms.name + " service is of state " + bbalarms.state + lf;
+            s += "Last message received on: " + Utils.formatDate(bbalarms.lastMessageReceivedOn, Webservice.DEFAULT_DATE_FORMAT);
             aboutDialog.aboutBlurb = s;
 
         } catch (Exception e){

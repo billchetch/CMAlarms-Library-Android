@@ -19,7 +19,6 @@
         android:entries="@array/settings.restart_after.labels"
         android:entryValues="@array/settings.restart_after.values"
         android:key="restart_after"
-        android:numeric="integer"
         android:summary="Select number of hours application runs without a restart"
         android:title="Restart After (hours)" />
 </PreferenceScreen>

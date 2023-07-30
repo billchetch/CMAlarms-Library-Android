@@ -39,14 +39,15 @@ public class APApplication extends ChetchApplication {
         try{
             //String apiBaseURL = sharedPref.getString("api_base_url", null);
             //String apiBaseURL = "http://192.168.2.188:8001/api";
-            //String apiBaseURL = "http://192.168.1.103:8001/api";
+            String apiBaseURL = "http://192.168.1.103:8001/api";
             //String apiBaseURL = "http://192.168.1.100:8001/api";
-            String apiBaseURL = "http://192.168.4.102:8001/api";
+            //String apiBaseURL = "http://192.168.4.102:8001/api";
             NetworkRepository.getInstance().setAPIBaseURL(apiBaseURL);
 
             MainActivity.suppressConnectionErrors = sharedPref.getBoolean("suppress_connection_errors", true);
 
-            restartAfter = sharedPref.getInt("restart_app_after", 3);
+            //Some kind of bug here if we try to use getInt so yeah getString then parseInt
+            restartAfter = Integer.parseInt(sharedPref.getString("restart_after", "12"));
 
             //fire up timer
             timerHandler.postDelayed(timerRunnable, TIMER_DELAY_IN_MILLIS);
