@@ -37,9 +37,9 @@ public class APApplication extends ChetchApplication {
         PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         try{
-            //String apiBaseURL = sharedPref.getString("api_base_url", null);
+            String apiBaseURL = sharedPref.getString("api_base_url", null);
             //String apiBaseURL = "http://192.168.2.188:8001/api";
-            String apiBaseURL = "http://192.168.1.103:8001/api";
+            //String apiBaseURL = "http://192.168.1.103:8001/api";
             //String apiBaseURL = "http://192.168.1.100:8001/api";
             //String apiBaseURL = "http://192.168.4.102:8001/api";
             NetworkRepository.getInstance().setAPIBaseURL(apiBaseURL);
@@ -71,5 +71,9 @@ public class APApplication extends ChetchApplication {
 
     public void setRestartAfter(int restartAfter){
         this.restartAfter = restartAfter;
+    }
+
+    public long getUpTime(){
+        return Calendar.getInstance().getTimeInMillis() - appStarted.getTimeInMillis();
     }
 }

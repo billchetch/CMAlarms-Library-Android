@@ -232,8 +232,11 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
         super.openAbout();
         try {
             String lf = "\n";
+            APApplication app = (APApplication)getApplication();
             ClientConnection client = model.getClient();
-            String s = client.getName() + " is of state " + client.getState() + lf;
+            String s = "";
+            s += "App uptime: " + Utils.formatDuration(app.getUpTime(), Utils.DurationFormat.DAYS_HOURS_MINS_SECS) + lf;
+            s += client.getName() + " is of state " + client.getState() + lf;
             MessagingViewModel.MessagingService bbalarms = model.getMessaingService(AlarmsMessageSchema.SERVICE_NAME);
             s += bbalarms.name + " service is of state " + bbalarms.state + lf;
             s += "Last message received on: " + Utils.formatDate(bbalarms.lastMessageReceivedOn, Webservice.DEFAULT_DATE_FORMAT);
