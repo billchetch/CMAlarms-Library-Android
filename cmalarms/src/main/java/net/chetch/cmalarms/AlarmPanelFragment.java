@@ -320,14 +320,14 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
 
         TextView tv = contentView.findViewById(R.id.alarmInfo);
         if(on ==  0){
-            tv.setTextColor(ContextCompat.getColor(getContext(), R.color.lightGrey));
+            tv.setTextColor(ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.lightGrey));
             tv.setTypeface(tv.getTypeface(), Typeface.ITALIC);
             String s = disabled == 0 ? "All alarms operational" : disabled + " alarms disabled, " + off + " alarms operational";
             tv.setText(s);
 
             tv = contentView.findViewById(R.id.alarmPanelInfoSub);
             if(tv != null) {
-                tv.setTextColor(ContextCompat.getColor(getContext(), R.color.lightGrey));
+                tv.setTextColor(ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.lightGrey));
                 tv.setTypeface(tv.getTypeface(), Typeface.ITALIC);
                 if (alarmLastRaised != null) {
                     s = "Last alarm raised was " + alarmLastRaised.getName();
@@ -338,12 +338,12 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
                 tv.setText(s);
             }
         } else {
-            tv.setTextColor(ContextCompat.getColor(getContext(), R.color.errorRed));
+            tv.setTextColor(ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.errorRed));
             tv.setTypeface(tv.getTypeface(), Typeface.BOLD_ITALIC);
             tv.setText(alarmMessage);
             tv = contentView.findViewById(R.id.alarmPanelInfoSub);
             if(tv != null) {
-                tv.setTextColor(ContextCompat.getColor(getContext(), R.color.errorRed));
+                tv.setTextColor(ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.errorRed));
                 tv.setTypeface(tv.getTypeface(), Typeface.BOLD_ITALIC);
                 String s = on + (on == 1 ?  " alarm " : " alarms ") + "raised";
                 tv.setText(s);
@@ -355,8 +355,8 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
         //set the buzzer bg
         ImageView pilot = contentView.findViewById(R.id.alarmsPilot);
         GradientDrawable d = (GradientDrawable)pilot.getDrawable();
-        int onColour = ContextCompat.getColor(getContext(), R.color.errorRed);
-        int offColour = ContextCompat.getColor(getContext(), R.color.mediumnDarkGrey);
+        int onColour = ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.errorRed);
+        int offColour = ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.mediumnDarkGrey);
         if(isPilotOn){
             if(animator == null) {
                 animator = Animation.flash(d, offColour, onColour, 1000, ValueAnimator.INFINITE);

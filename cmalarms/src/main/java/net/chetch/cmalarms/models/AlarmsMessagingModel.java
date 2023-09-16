@@ -80,8 +80,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
 
             if(!message.hasValue("Pilot")){
                 String msg = "Alarm panel offline (no pilot light detected)";
-                //TODO: reinstate setError
-                //setError(msg);
+                setError(msg);
                 return;
             }
 

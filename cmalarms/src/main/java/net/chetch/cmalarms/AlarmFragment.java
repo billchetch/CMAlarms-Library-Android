@@ -56,12 +56,12 @@ public class AlarmFragment extends Fragment {
         indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.MINOR, ContextCompat.getColor(getContext(), R.color.ALARM_MINOR));
         indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.OFF, ContextCompat.getColor(getContext(), R.color.ALARM_OFF));
 
-        lblColourMap.put(AlarmsMessageSchema.AlarmState.DISABLED, ContextCompat.getColor(getContext(), R.color.mediumnDarkGrey));
-        lblColourMap.put(AlarmsMessageSchema.AlarmState.CRITICAL, ContextCompat.getColor(getContext(), R.color.white));
-        lblColourMap.put(AlarmsMessageSchema.AlarmState.SEVERE, ContextCompat.getColor(getContext(), R.color.white));
-        lblColourMap.put(AlarmsMessageSchema.AlarmState.MODERATE, ContextCompat.getColor(getContext(), R.color.white));
-        lblColourMap.put(AlarmsMessageSchema.AlarmState.MINOR, ContextCompat.getColor(getContext(), R.color.white));
-        lblColourMap.put(AlarmsMessageSchema.AlarmState.OFF, ContextCompat.getColor(getContext(), R.color.mediumGrey));
+        lblColourMap.put(AlarmsMessageSchema.AlarmState.DISABLED, ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.mediumnDarkGrey));
+        lblColourMap.put(AlarmsMessageSchema.AlarmState.CRITICAL, ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.white));
+        lblColourMap.put(AlarmsMessageSchema.AlarmState.SEVERE, ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.white));
+        lblColourMap.put(AlarmsMessageSchema.AlarmState.MODERATE, ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.white));
+        lblColourMap.put(AlarmsMessageSchema.AlarmState.MINOR, ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.white));
+        lblColourMap.put(AlarmsMessageSchema.AlarmState.OFF, ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.mediumGrey));
     }
 
     @Override

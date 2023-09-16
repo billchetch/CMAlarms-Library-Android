@@ -39,13 +39,12 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
 
     static boolean connected = false;
     static boolean suppressConnectionErrors = false;
+    static ConnectManager connectManager = new ConnectManager();
 
     AlarmsMessagingModel model;
     AlarmsWebserviceModel wsModel;
 
     AlarmPanelFragment alarmPanelFragment;
-
-    ConnectManager connectManager = new ConnectManager();
 
     Observer connectProgress  = obj -> {
         showProgress();
@@ -98,57 +97,50 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
 
         includeActionBar(SettingsActivity.class);
 
-        //Get models
-        Logger.info("Main activity setting up model callbacks ...");
-        model = ViewModelProviders.of(this).get(AlarmsMessagingModel.class);
-        model.getError().observe(this, throwable -> {
+        if(!connectManager.isConnected()) {
+            //Get models
+            Logger.info("Main activity setting up model callbacks ...");
+            model = ViewModelProviders.of(this).get(AlarmsMessagingModel.class);
+            model.getError().observe(this, throwable -> {
+                try {
+                    handleError(throwable, model);
+                } catch (Exception e) {
+                    SLog.e("Main", e.getMessage());
+                }
+            });
+
+
+            wsModel = new ViewModelProvider(this).get(AlarmsWebserviceModel.class);
+            wsModel.getError().observe(this, throwable -> {
+                handleError(throwable, wsModel);
+            });
+
+
+            //Components
+            Logger.info("Main activity setting up creting components ...");
+            alarmPanelFragment = (AlarmPanelFragment) getSupportFragmentManager().findFragmentById(R.id.alarmPanelFragment);
+            alarmPanelFragment.listener = this;
+
             try {
-                handleError(throwable, model);
-            } catch (Exception e){
-                SLog.e("Main", e.getMessage());
+                Logger.info("Main activity sstting cm client name, adding modules and requesting connect ...");
+                model.setClientName("ACMCAPAlarms", getApplicationContext());
+
+                connectManager.addModel(model);
+                connectManager.addModel(wsModel);
+
+                connectManager.setPermissableServerTimeDifference(5 * 60);
+
+                connectManager.requestConnect(connectProgress);
+
+                NotificationBar.setView(findViewById(R.id.notificationbar), 100);
+                NotificationBar.monitor(this, connectManager, "connection");
+            } catch (Exception e) {
+                showError(e);
             }
-        });
-
-
-        wsModel = new ViewModelProvider(this).get(AlarmsWebserviceModel.class);
-        wsModel.getError().observe(this, throwable ->{
-            handleError(throwable, wsModel);
-        });
-
-
-        //Components
-        Logger.info("Main activity setting up creting components ...");
-        alarmPanelFragment = (AlarmPanelFragment)getSupportFragmentManager().findFragmentById(R.id.alarmPanelFragment);
-        alarmPanelFragment.listener = this;
-
-        try {
-            Logger.info("Main activity sstting cm client name, adding modules and requesting connect ...");
-            model.setClientName("ACMCAPAlarms", getApplicationContext());
-
-            connectManager.addModel(model);
-            connectManager.addModel(wsModel);
-
-            connectManager.setPermissableServerTimeDifference(5 * 60);
-
-            connectManager.requestConnect(connectProgress);
-
-            NotificationBar.setView(findViewById(R.id.notificationbar), 100);
-            NotificationBar.monitor(this, connectManager, "connection");
-        } catch (Exception e){
-            showError(e);
+        } else {
+            hideProgress();
+            NotificationBar.hide();
         }
-
-        //REMOVE THIS
-        /*Button btn = findViewById(R.id.testButton);
-        btn.setOnClickListener((v)->{
-            if(testButtonClicked){
-                connectManager.resume();
-            } else {
-                model.getClient().close();
-                connectManager.pause();
-            }
-            testButtonClicked = !testButtonClicked;
-        });*/
     }
 
     private String getStackTrace(Throwable t){
@@ -249,7 +241,7 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
 
 
     @Override
-    public void handleNotification(Object notifier, String tag) {
+    public void handleNotification(Object notifier, String tag, Object data) {
         if(notifier instanceof ConnectManager){
             ConnectManager cm = (ConnectManager)notifier;
             switch(cm.getState()){
