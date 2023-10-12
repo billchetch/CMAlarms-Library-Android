@@ -28,7 +28,6 @@ public class AlarmsMessageSchema extends MessageSchema{
         return state != AlarmState.OFF && state != AlarmState.DISABLED;
     }
 
-    static public final String SERVICE_NAME = "BBAlarms";
 
     static public final String COMMAND_ALARM_STATUS = "alarm-status";
     static public final String COMMAND_LIST_ALARMS = "list-alarms";

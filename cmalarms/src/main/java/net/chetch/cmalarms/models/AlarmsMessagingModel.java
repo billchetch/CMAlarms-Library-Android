@@ -18,6 +18,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 public class AlarmsMessagingModel extends MessagingViewModel {
+    static public final String SERVICE_NAME = "BBAlarms";
     static final int ALARM_TEST_DURATION = 10;
     static final AlarmsMessageSchema.AlarmState ALARM_TEST_STATE = AlarmsMessageSchema.AlarmState.CRITICAL;
 
@@ -31,7 +32,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
     MutableLiveData<Boolean> liveDataBuzzerSilenced = new MutableLiveData<>();
     MutableLiveData<Boolean> liveDataTesting = new MutableLiveData<>();
 
-    public AlertFilter onAlarmAlert = new AlertFilter(AlarmsMessageSchema.SERVICE_NAME){
+    public AlertFilter onAlarmAlert = new AlertFilter(SERVICE_NAME){
         @Override
         protected void onMatched(Message message) {
             Log.i("AMM", "On Alarm Alert");
@@ -52,7 +53,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         }
     };
 
-    public CommandResponseFilter onListAlarms = new CommandResponseFilter(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_LIST_ALARMS){
+    public CommandResponseFilter onListAlarms = new CommandResponseFilter(SERVICE_NAME, AlarmsMessageSchema.COMMAND_LIST_ALARMS){
         @Override
         protected void onMatched(Message message) {
             Log.i("AMM", "On List Alarms");
@@ -72,7 +73,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         }
     };
 
-    public CommandResponseFilter onAlarmStatus = new CommandResponseFilter(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_ALARM_STATUS){
+    public CommandResponseFilter onAlarmStatus = new CommandResponseFilter(SERVICE_NAME, AlarmsMessageSchema.COMMAND_ALARM_STATUS){
         @Override
         protected void onMatched(Message message){
             Log.i("AMM", "On Alarm Status");
@@ -104,7 +105,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         }
     };
 
-    public CommandResponseFilter onBuzzerSilenced = new CommandResponseFilter(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_SILENCE_BUZZER) {
+    public CommandResponseFilter onBuzzerSilenced = new CommandResponseFilter(SERVICE_NAME, AlarmsMessageSchema.COMMAND_SILENCE_BUZZER) {
         @Override
         protected void onMatched(Message message) {
             AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
@@ -113,7 +114,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         }
     };
 
-    public CommandResponseFilter onBuzzerUnsilenced = new CommandResponseFilter(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_UNSILENCE_BUZZER) {
+    public CommandResponseFilter onBuzzerUnsilenced = new CommandResponseFilter(SERVICE_NAME, AlarmsMessageSchema.COMMAND_UNSILENCE_BUZZER) {
         @Override
         protected void onMatched(Message message) {
             AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
@@ -122,7 +123,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         }
     };
 
-    public NotificationFilter onTestStatusNotification = new NotificationFilter(AlarmsMessageSchema.SERVICE_NAME) {
+    public NotificationFilter onTestStatusNotification = new NotificationFilter(SERVICE_NAME) {
         @Override
         protected boolean matches(Message message) {
             boolean matches = super.matches(message);
@@ -162,7 +163,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
     public void onClientConnected() {
         super.onClientConnected();
         Log.i("AMM", "Client connected so requesting list of alarms");
-        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_LIST_ALARMS);
+        getClient().sendCommand(SERVICE_NAME, AlarmsMessageSchema.COMMAND_LIST_ALARMS);
     }
 
     @Override
@@ -205,19 +206,19 @@ public class AlarmsMessagingModel extends MessagingViewModel {
 
     //make calls to the service
     public void requestAlarmStates(){
-        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_ALARM_STATUS);
+        getClient().sendCommand(SERVICE_NAME, AlarmsMessageSchema.COMMAND_ALARM_STATUS);
     }
 
     public void disableAlarm(String alarmID){
-        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_DISABLE_ALARM, alarmID);
+        getClient().sendCommand(SERVICE_NAME, AlarmsMessageSchema.COMMAND_DISABLE_ALARM, alarmID);
     }
 
     public void enableAlarm(String alarmID){
-        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_ENABLE_ALARM, alarmID);
+        getClient().sendCommand(SERVICE_NAME, AlarmsMessageSchema.COMMAND_ENABLE_ALARM, alarmID);
     }
 
     public void testAlarm(String alarmID){
-        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_TEST_ALARM, alarmID, ALARM_TEST_STATE.ordinal(), ALARM_TEST_DURATION);
+        getClient().sendCommand(SERVICE_NAME, AlarmsMessageSchema.COMMAND_TEST_ALARM, alarmID, ALARM_TEST_STATE.ordinal(), ALARM_TEST_DURATION);
     }
 
     public boolean isPilotOn(){
@@ -228,18 +229,18 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         return liveDataBuzzerSilenced.getValue();
     }
     public void silenceBuzzer(int silenceDuration){
-        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_SILENCE_BUZZER, silenceDuration);
+        getClient().sendCommand(SERVICE_NAME, AlarmsMessageSchema.COMMAND_SILENCE_BUZZER, silenceDuration);
     }
 
     public void unsilenceBuzzer(){
-        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_UNSILENCE_BUZZER);
+        getClient().sendCommand(SERVICE_NAME, AlarmsMessageSchema.COMMAND_UNSILENCE_BUZZER);
     }
 
     public void testBuzzer(){
-        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_TEST_BUZZER);
+        getClient().sendCommand(SERVICE_NAME, AlarmsMessageSchema.COMMAND_TEST_BUZZER);
     }
 
     public void testPilot(){
-        getClient().sendCommand(AlarmsMessageSchema.SERVICE_NAME, AlarmsMessageSchema.COMMAND_TEST_PILOT);
+        getClient().sendCommand(SERVICE_NAME, AlarmsMessageSchema.COMMAND_TEST_PILOT);
     }
 }
