@@ -41,7 +41,7 @@ public class AlarmFragment extends Fragment {
 
     public IAlarmPanelListener listener;
     public Alarm alarm;
-    public boolean horizontal = true;
+    public boolean horizontal = false;
     View contentView;
     AlarmsMessageSchema.AlarmState currentAlarmState;
 

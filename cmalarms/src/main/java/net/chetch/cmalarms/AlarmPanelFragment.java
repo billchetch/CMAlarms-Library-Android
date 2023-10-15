@@ -52,7 +52,7 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
     static final int MENU_ITEM_TEST_PILOT = 201;
     static final int MENU_ITEM_UNSILENCE = 300;
 
-    public boolean horizontal = true;
+    public boolean horizontal = false;
     public IAlarmPanelListener listener;
 
     View contentView;
@@ -67,6 +67,14 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        if(listener == null && getActivity() instanceof IAlarmPanelListener){
+            listener = ((IAlarmPanelListener)getActivity());
+        }
+        if(listener != null){
+            listener.onCreateAlarmPanel(this);
+        }
+
         // Inflate the layout for this fragment
         if(horizontal) {
             contentView = inflater.inflate(R.layout.alarm_panel_horizontal_scroll, container, false);
@@ -82,7 +90,10 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
         //progressCtn.setVisibility(View.INVISIBLE);
         mainLayout.setVisibility(View.INVISIBLE);
 
+        //
+
         SLog.i("AlarmPanelFragment", "Created " + (horizontal ? "horizontal" : "vertical") + " view");
+
         return contentView;
     }
 
@@ -173,17 +184,32 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        //Save the fragment's state here
+        try{
+            outState.putBoolean("horizontal", horizontal);
+        } catch (Exception e) {
+            Log.e("AlarmPanelFragment", e.getMessage());
+        }
+    }
+
+    @Override
     public void onInflate(Context context, AttributeSet attrs, Bundle savedInstanceState) {
         super.onInflate(context, attrs, savedInstanceState);
 
         try {
-            TypedArray a = getActivity().obtainStyledAttributes(attrs, R.styleable.AlarmPanelFragment);
-            horizontal = a.getBoolean(R.styleable.AlarmPanelFragment_horizontal, true);
-            a.recycle();
-        } catch (Exception e){
+            if(savedInstanceState != null && savedInstanceState.containsKey("horizontal")){
+                horizontal = savedInstanceState.getBoolean("horizontal");
+            } else {
+                TypedArray a = getActivity().obtainStyledAttributes(attrs, R.styleable.AlarmPanelFragment);
+                horizontal = a.getBoolean(R.styleable.AlarmPanelFragment_horizontal, true);
+                a.recycle();
+            }
+        } catch (Exception e) {
             Log.e("AlarmPanelFragment", e.getMessage());
         }
-
     }
 
     @Override
@@ -226,24 +252,33 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
         model.pause();
     }
 
+    private FragmentManager getFragmentManager2(){
+        //FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getChildFragmentManager();
+        //FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        return fragmentManager;
+    }
+
+    private void assign2AlarmFragment(AlarmFragment af, Alarm a){
+        af.listener = listener;
+        af.alarm = a;
+        af.horizontal = horizontal; //TODO: make this a setting if needed;
+    }
+
     public void populateAlarms(List<Alarm> alarms) {
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getFragmentManager2();
         FragmentTransaction fragTransaction = fragmentManager.beginTransaction();
-        List<AlarmFragment> afl = new ArrayList<>();
 
         alarmsMap.clear();
         for(Alarm a : alarms) {
             AlarmFragment af = (AlarmFragment) fragmentManager.findFragmentByTag(a.getAlarmID());
             if (af != null)fragTransaction.remove(af);
             af = new AlarmFragment();
-            af.listener = listener;
-            af.alarm = a;
-            af.horizontal = horizontal; //TODO: make this a setting if needed;
+            assign2AlarmFragment(af, a);
             fragTransaction.add(R.id.alarmsCtn, af, a.getAlarmID());
 
             //we keep a record
             alarmsMap.put(a.getAlarmID(), a);
-            afl.add(af);
         }
         fragTransaction.commit();
 
@@ -257,11 +292,12 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
     }
 
     public void updateAlarmState(Alarm alarm){
-        FragmentManager fragmentManager = getFragmentManager();
+        FragmentManager fragmentManager = getFragmentManager2();
         AlarmFragment af = (AlarmFragment)fragmentManager.findFragmentByTag(alarm.getAlarmID());
         AlarmsMessageSchema.AlarmState newState = alarm.getAlarmState();
         if(af != null) {
             AlarmsMessageSchema.AlarmState oldState = alarm.oldAlarmState;
+            assign2AlarmFragment(af, alarm);
             af.updateAlarmState();
             if(listener != null && oldState != newState){
                 listener.onAlarmStateChange(alarm, newState, oldState);

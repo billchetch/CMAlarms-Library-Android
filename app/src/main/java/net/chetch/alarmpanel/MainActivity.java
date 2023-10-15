@@ -97,10 +97,13 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
 
         includeActionBar(SettingsActivity.class);
 
+        model = ViewModelProviders.of(this).get(AlarmsMessagingModel.class);
+        wsModel = new ViewModelProvider(this).get(AlarmsWebserviceModel.class);
+
         if(!connectManager.isConnected()) {
             //Get models
             Logger.info("Main activity setting up model callbacks ...");
-            model = ViewModelProviders.of(this).get(AlarmsMessagingModel.class);
+
             model.getError().observe(this, throwable -> {
                 try {
                     handleError(throwable, model);
@@ -109,17 +112,9 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
                 }
             });
 
-
-            wsModel = new ViewModelProvider(this).get(AlarmsWebserviceModel.class);
             wsModel.getError().observe(this, throwable -> {
                 handleError(throwable, wsModel);
             });
-
-
-            //Components
-            Logger.info("Main activity setting up creting components ...");
-            alarmPanelFragment = (AlarmPanelFragment) getSupportFragmentManager().findFragmentById(R.id.alarmPanelFragment);
-            alarmPanelFragment.listener = this;
 
             try {
                 Logger.info("Main activity sstting cm client name, adding modules and requesting connect ...");
@@ -178,7 +173,6 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
 
     }
 
-
     @Override
     protected void onRestart() {
         super.onRestart();
@@ -191,6 +185,11 @@ public class MainActivity extends GenericActivity implements IAlarmPanelListener
         super.onStop();
 
         connectManager.pause();
+    }
+
+    @Override
+    public void onCreateAlarmPanel(AlarmPanelFragment fragment){
+        fragment.horizontal = false;
     }
 
     @Override
