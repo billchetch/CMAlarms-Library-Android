@@ -63,6 +63,10 @@ public class AlarmsMessageSchema extends MessageSchema{
         return message.getMap("AlarmStates", AlarmState.class);
     }
 
+    public Map<String, String> getAlarmMessages(){
+        return message.getMap("AlarmMessages", String.class);
+    }
+
     public List<Alarm> getAlarms(){
         List<String> alarms = message.getList("Alarms", String.class);
         if(alarms == null)return null;

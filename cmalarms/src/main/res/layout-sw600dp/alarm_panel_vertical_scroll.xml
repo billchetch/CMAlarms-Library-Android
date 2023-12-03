@@ -73,16 +73,16 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:visibility="visible">
 
-                <ImageButton
-                    android:id="@+id/alarmsBuzzerButton"
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginTop="4dp"
-                    android:background="@null"
+                <ImageView
+                    android:id="@+id/alarmsPilotBg"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_marginEnd="24dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_soundon_white_18dp" />
+                    app:srcCompat="@drawable/buzzer_button_background" />
 
                 <ImageView
                     android:id="@+id/alarmsPilot"
@@ -94,16 +94,16 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/buzzer_button" />
 
-                <ImageView
-                    android:id="@+id/alarmsPilotBg"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    android:layout_marginEnd="24dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
+                <ImageButton
+                    android:id="@+id/alarmsBuzzerButton"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="4dp"
+                    android:background="@null"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/buzzer_button_background" />
+                    app:srcCompat="@drawable/ic_soundon_white_18dp" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

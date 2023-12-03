@@ -86,12 +86,17 @@ public class AlarmsMessagingModel extends MessagingViewModel {
             }
 
             Map<String, AlarmsMessageSchema.AlarmState> l = schema.getAlarmStates();
+            Map<String, String> m = schema.getAlarmMessages();
 
             //we take this opportunity to update the alarm state properties
             for(Map.Entry<String, AlarmsMessageSchema.AlarmState> entry : l.entrySet()){
                 if(alarmsMap.containsKey(entry.getKey())){
                     Alarm a = alarmsMap.get(entry.getKey());
                     a.setAlarmState(entry.getValue(), schema.isTesting());
+                    if(m.containsKey(a.getAlarmID())) {
+                        String msg = m.get(a.getAlarmID());
+                        a.setAlarmMessage(msg);
+                    }
                 }
             }
 

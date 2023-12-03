@@ -115,6 +115,8 @@ public class AlarmFragment extends Fragment {
                 try {
                     if (alarm.isDisabled()) {
                         msg = "Disabled on " + Utils.formatDate(alarm.getLastDisabled(), ALARM_STATE_CHANGE_DATE_FORMAT);
+                    } else if(alarm.isRaised()){
+                        msg = alarm.getAlarmMessage();
                     } else {
                         Calendar lastRaised= alarm.getLastRaised();
                         if(lastRaised == null){
