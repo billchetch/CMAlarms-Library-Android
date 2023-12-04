@@ -125,6 +125,9 @@ public class AlarmFragment extends Fragment {
                             msg = "Last raised on " + Utils.formatDate(alarm.getLastRaised(),  ALARM_STATE_CHANGE_DATE_FORMAT);
                             if(alarm.getLastRaisedFor() > 0) msg += " for " + Utils.formatDuration(alarm.getLastRaisedFor() * 1000);
                         }
+                        if(alarm.getAlarmCode() == AlarmsMessageSchema.CODE_SOURCE_OFFLINE){
+                            msg += " (source offline)";
+                        }
                     }
                 } catch (Exception e){
                     Log.e("AF", e.getMessage());

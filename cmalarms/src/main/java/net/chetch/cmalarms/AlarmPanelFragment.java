@@ -152,9 +152,13 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
                 updateAlarmStates(alarmStates);
             });
 
-            model.getAlertedAlarm().observe(getViewLifecycleOwner(), alarm -> {
-                Log.i("AlarmPanelFragment", "Alarm alert " + alarm.getAlarmID() + " state " + alarm.getAlarmState());
-                updateAlarmState(alarm);
+            model.getAlertedAlarms().observe(getViewLifecycleOwner(), q -> {
+                Log.i("AlarmPanelFragmentA", "Alarm alert updating " + q.size() + " alarms");
+                while(q.size() > 0) {
+                    Alarm alarm = q.poll();
+                    Log.i("AlarmPanelFragmentA", "Alarm alert  " + alarm.getAlarmID());
+                    updateAlarmState(alarm);
+                }
             });
 
             model.getPilotOn().observe(getViewLifecycleOwner(), on -> {

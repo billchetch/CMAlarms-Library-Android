@@ -66,6 +66,12 @@ public class Alarm extends DataObject {
         setValue("alarm_message", s);
     }
 
+    public int getAlarmCode(){ return getCasted("alarm_code"); }
+
+    public void setAlarmCode(int c){
+        setValue("alarm_code", c);
+    }
+
     public Calendar getLastRaised(){
         Calendar c = getCasted("last_raised");
         return c;

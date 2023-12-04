@@ -13,6 +13,7 @@ import net.chetch.messaging.filters.NotificationFilter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -23,8 +24,10 @@ public class AlarmsMessagingModel extends MessagingViewModel {
     static final AlarmsMessageSchema.AlarmState ALARM_TEST_STATE = AlarmsMessageSchema.AlarmState.CRITICAL;
 
     Map<String, Alarm> alarmsMap = new HashMap<>();
+    ConcurrentLinkedDeque<Alarm> alertedAlarms = new ConcurrentLinkedDeque<>();
+
     String buzzerID;
-    MutableLiveData<Alarm> liveDataAlertedAlarm = new MutableLiveData<>();
+    MutableLiveData<ConcurrentLinkedDeque<Alarm>> liveDataAlertedAlarms = new MutableLiveData<>();
     MutableLiveData<List<Alarm>> liveDataAlarms = new MutableLiveData<>();
     MutableLiveData<Map<String, AlarmsMessageSchema.AlarmState>> liveDataAlarmStates = new MutableLiveData<>();
     MutableLiveData<Boolean> liveDataPilotOn = new MutableLiveData<>();
@@ -35,7 +38,6 @@ public class AlarmsMessagingModel extends MessagingViewModel {
     public AlertFilter onAlarmAlert = new AlertFilter(SERVICE_NAME){
         @Override
         protected void onMatched(Message message) {
-            Log.i("AMM", "On Alarm Alert");
             AlarmsMessageSchema schema = new AlarmsMessageSchema(message);
             String alarmID = schema.getAlarmID();
             AlarmsMessageSchema.AlarmState astate = schema.getAlarmState();
@@ -44,8 +46,13 @@ public class AlarmsMessagingModel extends MessagingViewModel {
                 Alarm alarm = alarmsMap.get(alarmID);
                 alarm.setAlarmState(astate, schema.isTesting());
                 alarm.setAlarmMessage(amessage);
-                liveDataAlertedAlarm.postValue(alarm);
+                alarm.setAlarmCode(schema.getAlarmCode());
+                alertedAlarms.add(alarm);
+                Log.i("AMM", "On Alarm " + alarmID + " alert: " + amessage);
+            } else {
+                Log.e("AMM", "Failed to locate " + alarmID + " so cannot alert");
             }
+            liveDataAlertedAlarms.postValue(alertedAlarms);
             liveDataPilotOn.postValue(schema.isPilotOn());
             liveDataBuzzerOn.postValue(schema.isBuzzerOn());
             liveDataBuzzerSilenced.postValue(schema.isBuzzerSilenced());
@@ -87,6 +94,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
 
             Map<String, AlarmsMessageSchema.AlarmState> l = schema.getAlarmStates();
             Map<String, String> m = schema.getAlarmMessages();
+            Map<String, Integer> c = schema.getAlarmCodes();
 
             //we take this opportunity to update the alarm state properties
             for(Map.Entry<String, AlarmsMessageSchema.AlarmState> entry : l.entrySet()){
@@ -97,6 +105,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
                         String msg = m.get(a.getAlarmID());
                         a.setAlarmMessage(msg);
                     }
+                    a.setAlarmCode(c.get(a.getAlarmID()));
                 }
             }
 
@@ -193,8 +202,8 @@ public class AlarmsMessagingModel extends MessagingViewModel {
         return liveDataAlarmStates;
     }
 
-    public LiveData<Alarm> getAlertedAlarm(){
-        return liveDataAlertedAlarm;
+    public LiveData<ConcurrentLinkedDeque<Alarm>> getAlertedAlarms(){
+        return liveDataAlertedAlarms;
     }
 
     public LiveData<Boolean> getPilotOn(){

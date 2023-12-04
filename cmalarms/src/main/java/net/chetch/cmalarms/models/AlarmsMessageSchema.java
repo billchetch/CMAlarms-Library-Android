@@ -39,6 +39,8 @@ public class AlarmsMessageSchema extends MessageSchema{
     static public final String COMMAND_TEST_BUZZER = "test-buzzer";
     static public final String COMMAND_TEST_PILOT = "test-pilot";
 
+    static public final int NO_CODE = 0;
+    static public final int CODE_SOURCE_OFFLINE = 1;
 
     public AlarmsMessageSchema(Message message){
         super(message);
@@ -55,6 +57,10 @@ public class AlarmsMessageSchema extends MessageSchema{
         return message.hasValue("AlarmMessage") ? message.getString("AlarmMessage") : null;
     }
 
+    public int getAlarmCode(){
+        return message.getInt("AlarmCode");
+    }
+
     public Calendar getAlarmLastRaised(){
         return message.hasValue("AlarmLastRaised") ? message.getCalendar("AlarmLastRaised") : null;
     }
@@ -65,6 +71,10 @@ public class AlarmsMessageSchema extends MessageSchema{
 
     public Map<String, String> getAlarmMessages(){
         return message.getMap("AlarmMessages", String.class);
+    }
+
+    public Map<String, Integer> getAlarmCodes(){
+        return message.getMap("AlarmCodes", Integer.class);
     }
 
     public List<Alarm> getAlarms(){
