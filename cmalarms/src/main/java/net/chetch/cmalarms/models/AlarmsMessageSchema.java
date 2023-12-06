@@ -17,7 +17,8 @@ import java.util.Calendar;
 public class AlarmsMessageSchema extends MessageSchema{
     public enum AlarmState{
         DISABLED,
-        OFF,
+        DISCONNECTED,
+        LOWERED,
         MINOR,
         MODERATE,
         SEVERE,
@@ -25,7 +26,7 @@ public class AlarmsMessageSchema extends MessageSchema{
     }
 
     static public boolean isAlarmStateOn(AlarmState state){
-        return state != AlarmState.OFF && state != AlarmState.DISABLED;
+        return state != AlarmState.DISCONNECTED && state != AlarmState.LOWERED && state != AlarmState.DISABLED;
     }
 
 

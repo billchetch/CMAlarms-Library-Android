@@ -54,14 +54,17 @@ public class AlarmFragment extends Fragment {
         indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.SEVERE, ContextCompat.getColor(getContext(), R.color.ALARM_SEVERE));
         indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.MODERATE, ContextCompat.getColor(getContext(), R.color.ALARM_MODERATE));
         indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.MINOR, ContextCompat.getColor(getContext(), R.color.ALARM_MINOR));
-        indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.OFF, ContextCompat.getColor(getContext(), R.color.ALARM_OFF));
+        indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.LOWERED, ContextCompat.getColor(getContext(), R.color.ALARM_LOWERED));
+        indidcatorColourMap.put(AlarmsMessageSchema.AlarmState.DISCONNECTED, ContextCompat.getColor(getContext(), R.color.ALARM_DISCONNECTED));
+
 
         lblColourMap.put(AlarmsMessageSchema.AlarmState.DISABLED, ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.mediumnDarkGrey));
         lblColourMap.put(AlarmsMessageSchema.AlarmState.CRITICAL, ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.white));
         lblColourMap.put(AlarmsMessageSchema.AlarmState.SEVERE, ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.white));
         lblColourMap.put(AlarmsMessageSchema.AlarmState.MODERATE, ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.white));
         lblColourMap.put(AlarmsMessageSchema.AlarmState.MINOR, ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.white));
-        lblColourMap.put(AlarmsMessageSchema.AlarmState.OFF, ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.mediumGrey));
+        lblColourMap.put(AlarmsMessageSchema.AlarmState.LOWERED, ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.mediumGrey));
+        lblColourMap.put(AlarmsMessageSchema.AlarmState.DISCONNECTED, ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.mediumGrey));
     }
 
     @Override
@@ -125,9 +128,6 @@ public class AlarmFragment extends Fragment {
                             msg = "Last raised on " + Utils.formatDate(alarm.getLastRaised(),  ALARM_STATE_CHANGE_DATE_FORMAT);
                             if(alarm.getLastRaisedFor() > 0) msg += " for " + Utils.formatDuration(alarm.getLastRaisedFor() * 1000);
                         }
-                        if(alarm.getAlarmCode() == AlarmsMessageSchema.CODE_SOURCE_OFFLINE){
-                            msg += " (source offline)";
-                        }
                     }
                 } catch (Exception e){
                     Log.e("AF", e.getMessage());
@@ -171,7 +171,8 @@ public class AlarmFragment extends Fragment {
                 case DISABLED:
                     menu.add(0, MENU_ITEM_ENABLE, 0, "Enable alarm").setOnMenuItemClickListener(selectItem);
                     break;
-                case OFF:
+                case DISCONNECTED:
+                case LOWERED:
                     menu.add(0, MENU_ITEM_DISABLE, 0, "Disable alarm").setOnMenuItemClickListener(selectItem);
                     menu.add(0, MENU_ITEM_TEST, 0, "Test alarm").setOnMenuItemClickListener(selectItem);
                     break;

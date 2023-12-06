@@ -329,7 +329,8 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
 
         int disabled = 0;
         int on  = 0;
-        int off = 0;
+        int lowered = 0;
+        int disconnected = 0;
         String alarmMessage = null;
         Alarm alarmLastRaised = null;
 
@@ -339,8 +340,11 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
                     case DISABLED:
                         disabled++;
                         break;
-                    case OFF:
-                        off++;
+                    case DISCONNECTED:
+                        disconnected++;
+                        break;
+                    case LOWERED:
+                        lowered++;
                         break;
                     default:
                         if(alarmMessage == null) {
@@ -359,10 +363,17 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
         }
 
         TextView tv = contentView.findViewById(R.id.alarmInfo);
-        if(on ==  0){
+        if(on ==  0) {
             tv.setTextColor(ContextCompat.getColor(getContext(), net.chetch.appresources.R.color.lightGrey));
             tv.setTypeface(tv.getTypeface(), Typeface.ITALIC);
-            String s = disabled == 0 ? "All alarms operational" : disabled + " alarms disabled, " + off + " alarms operational";
+            String s;
+            if (disabled == 0 && disconnected == 0) {
+                s = "All alarms operational";
+            } else if(disconnected == 0){
+                s = disabled + " alarms disabled, " + lowered + " alarms operational";
+            } else {
+                s = disabled + " alarms disabled, " + disconnected + " alarms not connected, " + lowered + " alarms operational";
+            }
             tv.setText(s);
 
             tv = contentView.findViewById(R.id.alarmPanelInfoSub);

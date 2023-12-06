@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Alarm extends DataObject {
 
-    public transient AlarmsMessageSchema.AlarmState oldAlarmState = AlarmsMessageSchema.AlarmState.OFF;
+    public transient AlarmsMessageSchema.AlarmState oldAlarmState = AlarmsMessageSchema.AlarmState.DISCONNECTED;
 
     public transient boolean testing = false;
 
@@ -29,7 +29,7 @@ public class Alarm extends DataObject {
 
     public AlarmsMessageSchema.AlarmState getAlarmState(){
         String s =  getCasted("alarm_state");
-        return s == null ? AlarmsMessageSchema.AlarmState.OFF : AlarmsMessageSchema.AlarmState.valueOf(s);
+        return s == null ? AlarmsMessageSchema.AlarmState.DISCONNECTED : AlarmsMessageSchema.AlarmState.valueOf(s);
     }
 
     public void setAlarmState(AlarmsMessageSchema.AlarmState alarmState, boolean testing){
@@ -43,7 +43,9 @@ public class Alarm extends DataObject {
                 case DISABLED:
                     setValue("last_disabled", Calendar.getInstance());
                     break;
-                case OFF:
+                case DISCONNECTED:
+                    break;
+                case LOWERED:
                     Calendar lastDisabled = getLastDisabled();
                     Calendar lastRaised = getLastRaised();
                     //last lowered depends on there being a last raised and either not ever disabled OR raised AFTER last disabled
