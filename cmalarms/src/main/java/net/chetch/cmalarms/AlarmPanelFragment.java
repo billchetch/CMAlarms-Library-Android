@@ -101,16 +101,28 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if(model == null) {
-            model = new ViewModelProvider(getActivity()).get(AlarmsMessagingModel.class);
+            View mainLayout = contentView.findViewById(R.id.alarmsMainLayout);
+            View progressCtn = contentView.findViewById(R.id.progressCtn);
+            TextView progressInfo = contentView.findViewById(R.id.progressInfo);
 
+            mainLayout.setVisibility(View.INVISIBLE);
+            progressCtn.setVisibility(View.VISIBLE);
+            progressInfo.setText("Connecting ... please wait");
+
+            model = new ViewModelProvider(getActivity()).get(AlarmsMessagingModel.class);
             model.observeMessagingServices(getViewLifecycleOwner(), ms -> {
                 //we assume this is always the alarms messaging service
-                View mainLayout = contentView.findViewById(R.id.alarmsMainLayout);
-                View progressCtn = contentView.findViewById(R.id.alarmsProgressCtn);
                 switch(ms.state){
                     case RESPONDING:
-                        if(progressCtn != null)progressCtn.setVisibility(View.INVISIBLE);
-                        mainLayout.setVisibility(View.VISIBLE);
+                        if(ms.isReady()) {
+                            if (progressCtn != null) progressCtn.setVisibility(View.INVISIBLE);
+                            mainLayout.setVisibility(View.VISIBLE);
+                        } else {
+                            if (progressCtn != null) progressCtn.setVisibility(View.VISIBLE);
+                            mainLayout.setVisibility(View.INVISIBLE);
+                            progressInfo.setVisibility(View.VISIBLE);
+                            progressInfo.setText("Service is responding waiting for it to become ready...");
+                        }
                         Log.i("AlarmPanelFragment", "Messaging service is RESPONDING");
                         break;
 
@@ -120,9 +132,8 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
                         mainLayout.setVisibility(View.INVISIBLE);
                         if(progressCtn != null)progressCtn.setVisibility(View.VISIBLE);
 
-                        TextView tv = contentView.findViewById(R.id.alarmsServiceState);
-                        if(tv != null) {
-                            tv.setVisibility(View.VISIBLE);
+                        if(progressInfo != null) {
+                            progressInfo.setVisibility(View.VISIBLE);
                             String msg = "";
                             if (ms.state == MessagingViewModel.MessagingServiceState.NOT_FOUND) {
                                 msg = "Cannot configure service as configuration details not found (possible webserver issue)";
@@ -131,7 +142,7 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
                             } else {
                                 msg = "Alarms service is not connected.  Check service has started.";
                             }
-                            tv.setText(msg);
+                            progressInfo.setText(msg);
                         }
                         Log.i("AlarmPanelFragment", "Messaging service is " + ms.state);
                         break;

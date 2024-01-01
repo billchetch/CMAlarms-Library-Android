@@ -161,6 +161,7 @@ public class AlarmsMessagingModel extends MessagingViewModel {
 
     public AlarmsMessagingModel(){
         super();
+
         try {
             addMessageFilter(onAlarmAlert);
             addMessageFilter(onListAlarms);
@@ -174,10 +175,10 @@ public class AlarmsMessagingModel extends MessagingViewModel {
     }
 
     @Override
-    public void onClientConnected() {
-        super.onClientConnected();
-        Log.i("AMM", "Client connected so requesting list of alarms");
-        getClient().sendCommand(SERVICE_NAME, AlarmsMessageSchema.COMMAND_LIST_ALARMS);
+    public void onReady() {
+        super.onReady();
+        Log.i("AMM", "Service is ready so requesting alarms list...");
+        requestAlarmsList();
     }
 
     @Override
@@ -219,6 +220,10 @@ public class AlarmsMessagingModel extends MessagingViewModel {
     public LiveData<Boolean> getIsTesting() { return liveDataTesting; }
 
     //make calls to the service
+    public void requestAlarmsList(){
+        getClient().sendCommand(SERVICE_NAME, AlarmsMessageSchema.COMMAND_LIST_ALARMS);
+    }
+
     public void requestAlarmStates(){
         getClient().sendCommand(SERVICE_NAME, AlarmsMessageSchema.COMMAND_ALARM_STATUS);
     }
