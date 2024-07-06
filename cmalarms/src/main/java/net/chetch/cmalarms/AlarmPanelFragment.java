@@ -111,6 +111,9 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
 
             model = new ViewModelProvider(getActivity()).get(AlarmsMessagingModel.class);
             model.observeMessagingServices(getViewLifecycleOwner(), ms -> {
+                String msg = "";
+                String lf = "\n";
+
                 //we assume this is always the alarms messaging service
                 switch(ms.state){
                     case RESPONDING:
@@ -118,11 +121,17 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
                             if (progressCtn != null) progressCtn.setVisibility(View.INVISIBLE);
                             mainLayout.setVisibility(View.VISIBLE);
                         } else {
-                            if (progressCtn != null) progressCtn.setVisibility(View.VISIBLE);
-                            mainLayout.setVisibility(View.INVISIBLE);
-                            progressInfo.setVisibility(View.VISIBLE);
-                            progressInfo.setText("Service is responding waiting for it to become ready...");
+                            if(ms.serviceStatusSummary != null) {
+                                msg = ms.serviceStatusSummary;
+                                if(ms.serviceStatusDetail != null){
+                                    msg += lf + "Status Code: " + ms.serviceStatusCode;
+                                    msg += lf + ms.serviceStatusDetail;
+                                }
+                            } else {
+                                msg = "Service is responding waiting for it to become ready...";
+                            }
                         }
+                        progressInfo.setText(msg);
                         Log.i("AlarmPanelFragment", "Messaging service is RESPONDING");
                         break;
 
@@ -134,7 +143,6 @@ public class AlarmPanelFragment extends Fragment implements MenuItem.OnMenuItemC
 
                         if(progressInfo != null) {
                             progressInfo.setVisibility(View.VISIBLE);
-                            String msg = "";
                             if (ms.state == MessagingViewModel.MessagingServiceState.NOT_FOUND) {
                                 msg = "Cannot configure service as configuration details not found (possible webserver issue)";
                             } else if (ms.state == MessagingViewModel.MessagingServiceState.NOT_RESPONDING) {
